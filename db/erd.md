@@ -1,99 +1,91 @@
 erDiagram
     COUNTERPARTIES ||--o{ TRADES : "executes"
-        INSTRUMENTS    ||--o{ TRADES : "covers"
-            TRADES         ||--o{ SETTLEMENTS : "settles via"
-                TRADES         ||--o{ RECON_BREAKS : "may produce"
-                    RECON_JOBS     ||--o{ RECON_BREAKS : "detected by"
-                        USERS          ||--o{ AUDIT_LOG : "actor"
-                            TRADES         ||--o{ AUDIT_LOG : "audited"
-                            
-                                COUNTERPARTIES {
-                                            bigint id PK
-                                                    varchar name
-                                                            char lei_code UK
-                                                                    varchar region
-                                                                        }
+    INSTRUMENTS    ||--o{ TRADES : "covers"
+    TRADES         ||--o{ SETTLEMENTS : "settles via"
+    TRADES         ||--o{ RECON_BREAKS : "may produce"
+    RECON_JOBS     ||--o{ RECON_BREAKS : "detected by"
+    USERS          ||--o{ AUDIT_LOG : "actor"
+    TRADES         ||--o{ AUDIT_LOG : "audited"
 
-                                                                            INSTRUMENTS {
-                                                                                        bigint id PK
-                                                                                                varchar symbol UK
-                                                                                                        varchar name
-                                                                                                                varchar asset_class
-                                                                                                                        char currency
-                                                                                                                                char isin UK
-                                                                                                                                        jsonb metadata "TICKET-ADV009"
-                                                                            }
+    COUNTERPARTIES {
+        bigint id PK
+        varchar name
+        char lei_code UK
+        varchar region
+    }
 
-                                                                                TRADES {
-                                                                                            bigint id PK
-                                                                                                    varchar trade_ref UK
-                                                                                                            bigint instrument_id FK
-                                                                                                                    bigint counterparty_id FK
-                                                                                                                            varchar asset_class
-                                                                                                                                    varchar side
-                                                                                                                                            numeric quantity
-                                                                                                                                                    numeric price
-                                                                                                                                                            date trade_date "PARTITION KEY (TICKET-ADV007)"
-                                                                                                                                                                    varchar status
-                                                                                                                                                                            timestamp deleted_at "TICKET-ADV067 soft delete"
-                                                                                                                                                                                    timestamp created_at
-                                                                                                                                                                                            timestamp modified_at
-                                                                                                                                                                                                }
+    INSTRUMENTS {
+        bigint id PK
+        varchar symbol UK
+        varchar name
+        varchar asset_class
+        char currency
+        char isin UK
+        jsonb metadata "TICKET-ADV009"
+    }
 
-                                                                                                                                                                                                    SETTLEMENTS {
-                                                                                                                                                                                                                bigint id PK
-                                                                                                                                                                                                                        bigint trade_id FK
-                                                                                                                                                                                                                                date settlement_date
-                                                                                                                                                                                                                                        numeric amount
-                                                                                                                                                                                                                                                varchar status
-                                                                                                                                                                                                    }
+    TRADES {
+        bigint id PK
+        varchar trade_ref UK
+        bigint instrument_id FK
+        bigint counterparty_id FK
+        varchar asset_class
+        varchar side
+        numeric quantity
+        numeric price
+        date trade_date "PARTITION KEY (TICKET-ADV007)"
+        varchar status
+        timestamp deleted_at "TICKET-ADV067 soft delete"
+        timestamp created_at
+        timestamp modified_at
+    }
 
-                                                                                                                                                                                                        RECON_BREAKS {
-                                                                                                                                                                                                                    bigint id PK
-                                                                                                                                                                                                                            bigint trade_id FK
-                                                                                                                                                                                                                                    varchar discrepancy_type
-                                                                                                                                                                                                                                            varchar status
-                                                                                                                                                                                                                                                    timestamp detected_at
-                                                                                                                                                                                                                                                            timestamp resolved_at
-                                                                                                                                                                                                                                                                    varchar resolution_note
-                                                                                                                                                                                                                                                                        }
+    SETTLEMENTS {
+        bigint id PK
+        bigint trade_id FK
+        date settlement_date
+        numeric amount
+        varchar status
+    }
 
-                                                                                                                                                                                                                                                                            RECON_JOBS {
-                                                                                                                                                                                                                                                                                        bigint id PK
-                                                                                                                                                                                                                                                                                                varchar job_id UK
-                                                                                                                                                                                                                                                                                                        date from_date
-                                                                                                                                                                                                                                                                                                                date to_date
-                                                                                                                                                                                                                                                                                                                        varchar status
-                                                                                                                                                                                                                                                                                                                                timestamp started_at
-                                                                                                                                                                                                                                                                                                                                        timestamp finished_at
-                                                                                                                                                                                                                                                                                                                                                int trades_processed
-                                                                                                                                                                                                                                                                                                                                                        int breaks_detected
-                                                                                                                                                                                                                                                                                                                                                            }
+    RECON_BREAKS {
+        bigint id PK
+        bigint trade_id FK
+        varchar discrepancy_type
+        varchar status
+        timestamp detected_at
+        timestamp resolved_at
+        varchar resolution_note
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                AUDIT_LOG {
-                                                                                                                                                                                                                                                                                                                                                                            bigint id PK
-                                                                                                                                                                                                                                                                                                                                                                                    varchar event_id UK
-                                                                                                                                                                                                                                                                                                                                                                                            varchar trade_ref
-                                                                                                                                                                                                                                                                                                                                                                                                    varchar event_type
-                                                                                                                                                                                                                                                                                                                                                                                                            timestamp event_timestamp
-                                                                                                                                                                                                                                                                                                                                                                                                                    varchar actor
-                                                                                                                                                                                                                                                                                                                                                                                                                            clob before_state
-                                                                                                                                                                                                                                                                                                                                                                                                                                    clob after_state
-                                                                                                                                                                                                                                                                                                                                                                }
+    RECON_JOBS {
+        bigint id PK
+        varchar job_id UK
+        date from_date
+        date to_date
+        varchar status
+        timestamp started_at
+        timestamp finished_at
+        int trades_processed
+        int breaks_detected
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                    USERS {
-                                                                                                                                                                                                                                                                                                                                                                                bigint id PK
-                                                                                                                                                                                                                                                                                                                                                                                        varchar email UK
-                                                                                                                                                                                                                                                                                                                                                                                                varchar password_hash
-                                                                                                                                                                                                                                                                                                                                                                                                        varchar role
-                                                                                                                                                                                                                                                                                                                                                                                                                boolean enabled
-                                                                                                                                                                                                                                                                                                                                                                                                                        timestamp created_at
-                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                        }
-                                                                                                                                                                                                    }
-                                                                                }
-                                                                            }
-                                }}}}}}}}
+    AUDIT_LOG {
+        bigint id PK
+        varchar event_id UK
+        varchar trade_ref
+        varchar event_type
+        timestamp event_timestamp
+        varchar actor
+        clob before_state
+        clob after_state
+    }
+
+    USERS {
+        bigint id PK
+        varchar email UK
+        varchar password_hash
+        varchar role
+        boolean enabled
+        timestamp created_at
+    }
