@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtTokenProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.security</a> &gt; <span class="el_source">JwtTokenProvider.java</span></div><h1>JwtTokenProvider.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.security;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Map;
+
+/**
+ * ============================================================================
+ * TICKET-ADV072 — JwtTokenProvider (jjwt 0.12.x API)
+ *
+ * WHAT:    Generates + validates HS256-signed JWTs.
+ * HOW:     Subject = email. Role goes into a custom &quot;role&quot; claim that
+ *          {@link JwtAuthenticationFilter} turns into a GrantedAuthority.
+ * WHY:     Self-contained (no DB hit per request) and stateless (no session).
+ * OBSERVE: Decode any token at jwt.io with the configured secret.
+ *
+ * NOTE:   jjwt 0.12 uses .subject() / .issuer() / .claims() / .signWith() —
+ *         the older 0.11 builder API (.setSubject etc.) is deprecated.
+ * GOTCHA: HS256 needs a key of at least 256 bits — short secrets throw
+ *         io.jsonwebtoken.security.WeakKeyException at startup.
+ * ============================================================================
+ */
+@Component
+public class JwtTokenProvider {
+
+    private final SecretKey key;
+    private final long expirationMinutes;
+    private final String issuer;
+
+    public JwtTokenProvider(@Value(&quot;${reconx.security.jwt.secret}&quot;) String secret,
+                            @Value(&quot;${reconx.security.jwt.expiration-minutes}&quot;) long expirationMinutes,
+<span class="fc" id="L40">                            @Value(&quot;${reconx.security.jwt.issuer}&quot;) String issuer) {</span>
+<span class="fc" id="L41">        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L42">        this.expirationMinutes = expirationMinutes;</span>
+<span class="fc" id="L43">        this.issuer = issuer;</span>
+<span class="fc" id="L44">    }</span>
+
+    public String generate(String email, String role) {
+<span class="fc" id="L47">        Instant now = Instant.now();</span>
+<span class="fc" id="L48">        Instant exp = now.plusSeconds(expirationMinutes * 60);</span>
+<span class="fc" id="L49">        return Jwts.builder()</span>
+<span class="fc" id="L50">                .subject(email)</span>
+<span class="fc" id="L51">                .issuer(issuer)</span>
+<span class="fc" id="L52">                .issuedAt(Date.from(now))</span>
+<span class="fc" id="L53">                .expiration(Date.from(exp))</span>
+<span class="fc" id="L54">                .claims(Map.of(&quot;role&quot;, role))</span>
+<span class="fc" id="L55">                .signWith(key)</span>
+<span class="fc" id="L56">                .compact();</span>
+    }
+
+    public Claims parse(String token) {
+<span class="fc" id="L60">        return Jwts.parser()</span>
+<span class="fc" id="L61">                .verifyWith(key)</span>
+<span class="fc" id="L62">                .requireIssuer(issuer)</span>
+<span class="fc" id="L63">                .build()</span>
+<span class="fc" id="L64">                .parseSignedClaims(token)</span>
+<span class="fc" id="L65">                .getPayload();</span>
+    }
+
+    public long expirationSeconds() {
+<span class="nc" id="L69">        return expirationMinutes * 60;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

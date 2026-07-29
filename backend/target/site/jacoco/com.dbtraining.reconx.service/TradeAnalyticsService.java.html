@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TradeAnalyticsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.service</a> &gt; <span class="el_source">TradeAnalyticsService.java</span></div><h1>TradeAnalyticsService.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.service;
+
+import com.dbtraining.reconx.model.BondTrade;
+import com.dbtraining.reconx.model.DerivativeTrade;
+import com.dbtraining.reconx.model.EquityTrade;
+import com.dbtraining.reconx.model.FXTrade;
+import com.dbtraining.reconx.model.Side;
+import com.dbtraining.reconx.model.TradeType;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * ============================================================================
+ * TICKET-ADV034 — Trade analytics with Collectors (groupingBy + summarizing)
+ * TICKET-ADV035 — VWAP calculator using Streams + custom collector
+ * TICKET-ADV036 — P&amp;L per instrument: stream reduction
+ * ============================================================================
+ */
+@Service
+<span class="fc" id="L25">public class TradeAnalyticsService {</span>
+
+    /** TICKET-ADV034 — count + sum of notional per counterparty. */
+    public Map&lt;Long, NotionalSummary&gt; notionalByCounterparty(List&lt;? extends TradeType&gt; trades) {
+<span class="nc bnc" id="L29" title="All 4 branches missed.">        if (trades == null || trades.isEmpty()) return Map.of();</span>
+<span class="nc" id="L30">        return trades.stream().collect(Collectors.groupingBy(</span>
+                this::counterpartyIdOf,
+<span class="nc" id="L32">                Collectors.collectingAndThen(Collectors.toList(), list -&gt; new NotionalSummary(</span>
+<span class="nc" id="L33">                        list.size(),</span>
+<span class="nc" id="L34">                        list.stream()</span>
+<span class="nc" id="L35">                                .map(t -&gt; t.notional().amount())</span>
+<span class="nc" id="L36">                                .reduce(BigDecimal.ZERO, BigDecimal::add)))));</span>
+    }
+
+    /**
+     * TICKET-ADV035 — VWAP = SUM(price * qty) / SUM(qty). Equity-only — only
+     * EquityTrade has a meaningful price-volume pair.
+     */
+    public Map&lt;String, BigDecimal&gt; vwapByInstrument(List&lt;EquityTrade&gt; equityTrades) {
+<span class="nc bnc" id="L44" title="All 4 branches missed.">        if (equityTrades == null || equityTrades.isEmpty()) return Map.of();</span>
+<span class="nc" id="L45">        return equityTrades.stream().collect(Collectors.groupingBy(</span>
+                EquityTrade::instrumentSymbol,
+<span class="nc" id="L47">                Collectors.collectingAndThen(Collectors.toList(), bucket -&gt; {</span>
+<span class="nc" id="L48">                    BigDecimal totalPxQty = BigDecimal.ZERO;</span>
+<span class="nc" id="L49">                    BigDecimal totalQty   = BigDecimal.ZERO;</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                    for (EquityTrade t : bucket) {</span>
+<span class="nc" id="L51">                        totalPxQty = totalPxQty.add(t.price().multiply(t.quantity()));</span>
+<span class="nc" id="L52">                        totalQty   = totalQty.add(t.quantity());</span>
+<span class="nc" id="L53">                    }</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                    return totalQty.signum() == 0</span>
+<span class="nc" id="L55">                            ? BigDecimal.ZERO</span>
+<span class="nc" id="L56">                            : totalPxQty.divide(totalQty, 6, RoundingMode.HALF_UP);</span>
+                })));
+    }
+
+    /** TICKET-ADV036 — P&amp;L per instrument symbol (sign by Side). */
+    public Map&lt;String, BigDecimal&gt; pnlByInstrument(List&lt;EquityTrade&gt; equityTrades) {
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        if (equityTrades == null || equityTrades.isEmpty()) return Map.of();</span>
+<span class="nc" id="L63">        return equityTrades.stream().collect(Collectors.groupingBy(</span>
+                EquityTrade::instrumentSymbol,
+<span class="nc" id="L65">                Collectors.mapping(this::pnl,</span>
+<span class="nc" id="L66">                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))));</span>
+    }
+
+    private BigDecimal pnl(EquityTrade t) {
+<span class="nc" id="L70">        BigDecimal abs = t.price().multiply(t.quantity());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        return t.side() == Side.SELL ? abs : abs.negate();</span>
+    }
+
+    private long counterpartyIdOf(TradeType t) {
+<span class="nc bnc" id="L75" title="All 4 branches missed.">        return switch (t) {</span>
+<span class="nc" id="L76">            case EquityTrade e     -&gt; e.counterpartyId();</span>
+<span class="nc" id="L77">            case FXTrade fx        -&gt; fx.counterpartyId();</span>
+<span class="nc" id="L78">            case BondTrade b       -&gt; b.counterpartyId();</span>
+<span class="nc" id="L79">            case DerivativeTrade d -&gt; d.counterpartyId();</span>
+        };
+    }
+
+<span class="nc" id="L83">    public record NotionalSummary(long count, BigDecimal total) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
