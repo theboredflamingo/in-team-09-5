@@ -64,10 +64,12 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, SystemAlert> systemAlertListenerContainerFactory(
-            ConsumerFactory<String, SystemAlert> systemAlertConsumerFactory) {
+            ConsumerFactory<String, SystemAlert> systemAlertConsumerFactory,
+            DefaultErrorHandler errorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, SystemAlert> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(systemAlertConsumerFactory);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 }
