@@ -29,7 +29,6 @@ public class SecurityConfig {
                                            JwtAuthenticationFilter jwtFilter) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .anonymous(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(

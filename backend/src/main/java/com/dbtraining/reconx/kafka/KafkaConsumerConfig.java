@@ -4,6 +4,7 @@ import com.dbtraining.reconx.dto.SystemAlert;
 import com.dbtraining.reconx.dto.TradeEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.boot.autoconfigure.kafka.DefaultKafkaConsumerFactoryCustomizer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,8 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, TradeEvent> tradeEventConsumerFactory(KafkaProperties props) {
+    public ConsumerFactory<String, TradeEvent> tradeEventConsumerFactory(
+            KafkaProperties props, DefaultKafkaConsumerFactoryCustomizer customizer) {
         Map<String, Object> config = new HashMap<>(props.buildConsumerProperties(null));
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
@@ -30,7 +32,9 @@ public class KafkaConsumerConfig {
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "com.dbtraining.reconx.dto");
         config.put(JsonDeserializer.VALUE_DEFAULT_TYPE, TradeEvent.class.getName());
         config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        return new DefaultKafkaConsumerFactory<>(config);
+        DefaultKafkaConsumerFactory<String, TradeEvent> factory = new DefaultKafkaConsumerFactory<>(config);
+        customizer.customize(factory);
+        return factory;
     }
 
     @Bean
@@ -45,14 +49,17 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, SystemAlert> systemAlertConsumerFactory(KafkaProperties props) {
+    public ConsumerFactory<String, SystemAlert> systemAlertConsumerFactory(
+            KafkaProperties props, DefaultKafkaConsumerFactoryCustomizer customizer) {
         Map<String, Object> config = new HashMap<>(props.buildConsumerProperties(null));
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "com.dbtraining.reconx.dto");
         config.put(JsonDeserializer.VALUE_DEFAULT_TYPE, SystemAlert.class.getName());
         config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        return new DefaultKafkaConsumerFactory<>(config);
+        DefaultKafkaConsumerFactory<String, SystemAlert> factory = new DefaultKafkaConsumerFactory<>(config);
+        customizer.customize(factory);
+        return factory;
     }
 
     @Bean

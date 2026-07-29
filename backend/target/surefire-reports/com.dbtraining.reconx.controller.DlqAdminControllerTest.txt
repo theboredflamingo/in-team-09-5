@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.dbtraining.reconx.controller.DlqAdminControllerTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 26.02 s -- in com.dbtraining.reconx.controller.DlqAdminControllerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.119 s -- in com.dbtraining.reconx.controller.DlqAdminControllerTest

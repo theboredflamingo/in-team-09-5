@@ -64,9 +64,9 @@ class AuditControllerTest {
     }
 
     @Test
-    void unauthenticatedGetsUnauthorized() throws Exception {
+    void unauthenticatedIsDenied() throws Exception {
         mvc.perform(get("/v1/audit/trades/{tradeRef}/events", TRADE_REF))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
