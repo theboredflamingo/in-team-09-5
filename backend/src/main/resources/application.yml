@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: reconx
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.format_sql: true
+      hibernate.jdbc.time_zone: UTC
