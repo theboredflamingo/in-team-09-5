@@ -6,6 +6,11 @@
 #   docker compose ps          # all three should show healthy
 #   Kafdrop UI: http://localhost:9000
 #   Kafka bootstrap (host): localhost:9092
+#
+# Day 9 Part D (ADV139–ADV142):
+#   docker compose up -d prometheus grafana
+#   Grafana: http://localhost:3000 (admin / admin)
+#   Prometheus: http://localhost:9090
 # =============================================================================
 
 services:
@@ -70,6 +75,49 @@ services:
       - reconx
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: reconx-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/recording_rules.yml:/etc/prometheus/recording_rules.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - reconx
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: reconx-grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - reconx
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
