@@ -1,19 +1,34 @@
 # =============================================================================
-# RECONX local stack — Day 9+: Kafka + Kafdrop (Day 10 adds postgres, Grafana…)
+# 7-service stack: postgres, zookeeper, kafka, backend, frontend,
+#                   prometheus, grafana (+ optional kafdrop behind "debug")
 #
-# Day 9 verification:
-#   docker compose up -d zookeeper kafka kafdrop
-#   docker compose ps          # all three should show healthy
-#   Kafdrop UI: http://localhost:9000
-#   Kafka bootstrap (host): localhost:9092
-#
-# Day 9 Part D (ADV139–ADV142):
-#   docker compose up -d prometheus grafana
-#   Grafana: http://localhost:3000 (admin / admin)
-#   Prometheus: http://localhost:9090
+# Boot:  docker compose up -d --build
+# Verify: docker compose ps   # all core services healthy
 # =============================================================================
 
+name: reconx
+
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: reconx-postgres
+    environment:
+      POSTGRES_DB: reconx
+      POSTGRES_USER: reconx_user
+      POSTGRES_PASSWORD: reconx_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reconx
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reconx_user -d reconx"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     container_name: reconx-zookeeper
@@ -50,46 +65,75 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     networks:
       - reconx
     healthcheck:
       test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 10
       start_period: 30s
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop:4.0.1
-    container_name: reconx-kafdrop
+  backend:
+    build: ./backend
+    image: ${BACKEND_IMAGE:-reconx-backend:latest}
+    container_name: reconx-backend
     depends_on:
+      postgres:
+        condition: service_healthy
       kafka:
         condition: service_healthy
-    environment:
-      KAFKA_BROKERCONNECT: kafka:29092
-      JVM_OPTS: "-Xms32M -Xmx64M"
     ports:
-      - "9000:9000"
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: uat
+      SERVER_PORT: 8080
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: reconx
+      POSTGRES_USER: reconx_user
+      POSTGRES_PASSWORD: reconx_pass
+      KAFKA_BOOTSTRAP: kafka:29092
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-32-bytes-min!!}
     networks:
       - reconx
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9000"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  frontend:
+    build: ./frontend
+    image: ${FRONTEND_IMAGE:-reconx-frontend:latest}
+    container_name: reconx-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    networks:
+      - reconx
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
+      start_period: 10s
 
   prometheus:
     image: prom/prometheus:v2.53.0
     container_name: reconx-prometheus
+    depends_on:
+      backend:
+        condition: service_healthy
     ports:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/prometheus/recording_rules.yml:/etc/prometheus/recording_rules.yml:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - reconx
     healthcheck:
@@ -114,6 +158,7 @@ services:
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
     networks:
       - reconx
     healthcheck:
@@ -123,6 +168,32 @@ services:
       retries: 5
       start_period: 20s
 
+  # Optional — bring up with: docker compose --profile debug up -d
+  kafdrop:
+    image: obsidiandynamics/kafdrop:4.0.1
+    container_name: reconx-kafdrop
+    profiles: ["debug"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    ports:
+      - "9000:9000"
+    networks:
+      - reconx
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
 networks:
   reconx:
     driver: bridge
+
+volumes:
+  postgres_data:
+  grafana_data:
