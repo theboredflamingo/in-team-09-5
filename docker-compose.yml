@@ -25,7 +25,7 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U reconx_user -d reconx"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 10
       start_period: 10s
 
@@ -73,8 +73,8 @@ services:
     healthcheck:
       test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
       interval: 10s
-      timeout: 10s
-      retries: 10
+      timeout: 5s
+      retries: 15
       start_period: 30s
 
   kafka-jmx-exporter:
@@ -117,10 +117,10 @@ services:
     networks:
       - reconx
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/actuator/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 60s
 
   frontend:
