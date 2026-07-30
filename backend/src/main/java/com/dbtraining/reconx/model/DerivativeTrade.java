@@ -106,10 +106,15 @@ public final class DerivativeTrade implements TradeType {
             Objects.requireNonNull(currency,   "currency");
             Objects.requireNonNull(side,       "side");
             Objects.requireNonNull(tradeDate,  "tradeDate");
-            if (strike.signum() <= 0)   throw new IllegalStateException("strike must be > 0");
-            if (quantity.signum() <= 0) throw new IllegalStateException("quantity must be > 0");
-            if (expiry.isBefore(tradeDate))
+            if (strike.signum() <= 0) {
+                throw new IllegalStateException("strike must be > 0");
+            }
+            if (quantity.signum() <= 0) {
+                throw new IllegalStateException("quantity must be > 0");
+            }
+            if (expiry.isBefore(tradeDate)) {
                 throw new IllegalStateException("expiry cannot be before tradeDate");
+            }
             return new DerivativeTrade(this);
         }
     }

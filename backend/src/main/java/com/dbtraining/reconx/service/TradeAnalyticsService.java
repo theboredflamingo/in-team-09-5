@@ -26,7 +26,9 @@ public class TradeAnalyticsService {
 
     /** TICKET-ADV034 — count + sum of notional per counterparty. */
     public Map<Long, NotionalSummary> notionalByCounterparty(List<? extends TradeType> trades) {
-        if (trades == null || trades.isEmpty()) return Map.of();
+        if (trades == null || trades.isEmpty()) {
+            return Map.of();
+        }
         return trades.stream().collect(Collectors.groupingBy(
                 this::counterpartyIdOf,
                 Collectors.collectingAndThen(Collectors.toList(), list -> new NotionalSummary(
@@ -41,7 +43,9 @@ public class TradeAnalyticsService {
      * EquityTrade has a meaningful price-volume pair.
      */
     public Map<String, BigDecimal> vwapByInstrument(List<EquityTrade> equityTrades) {
-        if (equityTrades == null || equityTrades.isEmpty()) return Map.of();
+        if (equityTrades == null || equityTrades.isEmpty()) {
+            return Map.of();
+        }
         return equityTrades.stream().collect(Collectors.groupingBy(
                 EquityTrade::instrumentSymbol,
                 Collectors.collectingAndThen(Collectors.toList(), bucket -> {
@@ -59,7 +63,9 @@ public class TradeAnalyticsService {
 
     /** TICKET-ADV036 — P&L per instrument symbol (sign by Side). */
     public Map<String, BigDecimal> pnlByInstrument(List<EquityTrade> equityTrades) {
-        if (equityTrades == null || equityTrades.isEmpty()) return Map.of();
+        if (equityTrades == null || equityTrades.isEmpty()) {
+            return Map.of();
+        }
         return equityTrades.stream().collect(Collectors.groupingBy(
                 EquityTrade::instrumentSymbol,
                 Collectors.mapping(this::pnl,

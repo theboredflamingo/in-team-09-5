@@ -1,21 +1,18 @@
 package com.dbtraining.reconx.controller;
 
 import com.dbtraining.reconx.dto.ReconRunRequest;
-import com.dbtraining.reconx.exception.TradeNotFoundException;
 import com.dbtraining.reconx.repository.ReconBreakRepository;
 import com.dbtraining.reconx.repository.entity.ReconBreak;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * TICKET-ADV068 — POST /api/v1/recon/run — returns 202 + jobId

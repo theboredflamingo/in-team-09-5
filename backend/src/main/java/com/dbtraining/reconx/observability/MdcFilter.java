@@ -50,7 +50,9 @@ public class MdcFilter implements Filter {
         String tradeRef      = header(http, HDR_TRADE_REF, null);
         try {
             MDC.put("correlationId", correlationId);
-            if (tradeRef != null) MDC.put("tradeRef", tradeRef);
+            if (tradeRef != null) {
+                MDC.put("tradeRef", tradeRef);
+            }
             chain.doFilter(req, res);
         } finally {
             MDC.clear();

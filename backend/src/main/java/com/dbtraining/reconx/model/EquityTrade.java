@@ -109,8 +109,12 @@ public final class EquityTrade implements TradeType {
             Objects.requireNonNull(currency,         "currency");
             Objects.requireNonNull(side,             "side");
             Objects.requireNonNull(tradeDate,        "tradeDate");
-            if (quantity.signum() <= 0) throw new IllegalStateException("quantity must be > 0");
-            if (price.signum() <= 0)    throw new IllegalStateException("price must be > 0");
+            if (quantity.signum() <= 0) {
+                throw new IllegalStateException("quantity must be > 0");
+            }
+            if (price.signum() <= 0) {
+                throw new IllegalStateException("price must be > 0");
+            }
             return new EquityTrade(this);
         }
     }

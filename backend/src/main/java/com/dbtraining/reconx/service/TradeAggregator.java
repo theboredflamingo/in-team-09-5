@@ -41,6 +41,7 @@ public class TradeAggregator {
             switch (TradeEvent.EventType.valueOf(e.getEventType())) {
                 case TRADE_CREATED, TRADE_UPDATED -> state = parseAfterState(e.getAfterState());
                 case TRADE_CANCELLED              -> state = null;
+                default -> { /* ignore unknown audit event types */ }
             }
         }
         log.info("Rebuilt tradeRef={} from {} events -> {}",

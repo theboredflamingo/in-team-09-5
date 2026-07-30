@@ -97,8 +97,12 @@ public final class FXTrade implements TradeType {
             Objects.requireNonNull(fxRate,       "fxRate");
             Objects.requireNonNull(side,         "side");
             Objects.requireNonNull(tradeDate,    "tradeDate");
-            if (ccy1.equals(ccy2)) throw new IllegalStateException("ccy1 and ccy2 must differ");
-            if (fxRate.signum() <= 0) throw new IllegalStateException("fxRate must be > 0");
+            if (ccy1.equals(ccy2)) {
+                throw new IllegalStateException("ccy1 and ccy2 must differ");
+            }
+            if (fxRate.signum() <= 0) {
+                throw new IllegalStateException("fxRate must be > 0");
+            }
             return new FXTrade(this);
         }
     }

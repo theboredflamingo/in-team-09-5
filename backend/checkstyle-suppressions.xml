@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<!--
+  TICKET-ADV157 — documented suppressions. Prefer fixing source over adding entries.
+-->
+<suppressions>
+    <!-- Generated MapStruct output; do not hand-edit for style. -->
+    <suppress checks=".*" files="[/\\]generated-sources[/\\].*"/>
+    <suppress checks=".*" files="TradeMapperImpl\.java"/>
+
+    <!-- Spring REST controllers conventionally star-import web.bind.annotation.* -->
+    <suppress checks="AvoidStarImport" files="[/\\]controller[/\\].*"/>
+
+    <!-- BDD-style test method names (method_underTest_expected) are intentional. -->
+    <suppress checks="MethodName" files="[/\\]src[/\\]test[/\\].*"/>
+
+    <!-- Compact Java records use empty bodies without inner whitespace. -->
+    <suppress checks="WhitespaceAround" files="[/\\]dto[/\\].*"/>
+
+    <!-- JPA entities conventionally star-import jakarta.persistence.* -->
+    <suppress checks="AvoidStarImport" files="[/\\]repository[/\\]entity[/\\].*"/>
+    <suppress checks="AvoidStarImport" files="DlqMessage\.java"/>
+
+    <!-- Domain builders group related fields and use compact one-line accessors. -->
+    <suppress checks="MultipleVariableDeclarations|OneStatementPerLine|WhitespaceAround"
+              files="[/\\]model[/\\].*"/>
+
+    <!-- JPA entities use compact accessor/enum bodies. -->
+    <suppress checks="WhitespaceAround" files="[/\\]repository[/\\]entity[/\\].*"/>
+    <suppress checks="WhitespaceAround" files="TradeSpecifications\.java"/>
+    <suppress checks="WhitespaceAround" files="TradeAnalyticsService\.java"/>
+
+    <!-- Test fixtures mirror production import style for Kafka/JUnit setup. -->
+    <suppress checks="AvoidStarImport" files="[/\\]src[/\\]test[/\\].*"/>
+
+    <!-- Spring @Configuration proxy methods are often package-private by design. -->
+    <suppress checks="ModifierOrder" files="SecurityConfig\.java"/>
+
+    <!-- Kafka listener templates use long lambdas; length gate stays on business code. -->
+    <suppress checks="MethodLength" files="KafkaErrorHandlerConfig\.java"/>
+    <suppress checks="MethodLength" files="TradeSpecifications\.java"/>
+</suppressions>

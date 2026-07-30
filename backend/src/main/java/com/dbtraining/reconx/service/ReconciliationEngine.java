@@ -58,7 +58,9 @@ public class ReconciliationEngine {
     public List<ReconResult> reconcile(List<TradeType> internal,
                                        List<TradeType> external,
                                        ReconciliationRule rule) {
-        if (internal == null || internal.isEmpty()) return List.of();
+        if (internal == null || internal.isEmpty()) {
+            return List.of();
+        }
         List<TradeType> ext = external == null ? List.of() : external;
         Map<String, TradeType> externalByRef = ext.stream()
                 .collect(Collectors.toMap(

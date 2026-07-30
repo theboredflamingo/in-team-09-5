@@ -99,8 +99,9 @@ public final class BondTrade implements TradeType {
             Objects.requireNonNull(currency,     "currency");
             Objects.requireNonNull(side,         "side");
             Objects.requireNonNull(tradeDate,    "tradeDate");
-            if (maturityDate.isBefore(tradeDate))
+            if (maturityDate.isBefore(tradeDate)) {
                 throw new IllegalStateException("maturityDate cannot be before tradeDate");
+            }
             return new BondTrade(this);
         }
     }

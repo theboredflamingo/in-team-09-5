@@ -222,6 +222,29 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+            <!-- ADV157 — Checkstyle (validate phase, fails on warning-level violations) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>warning</violationSeverity>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle-validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- ADV046 / ADV156 — JaCoCo coverage gate (LINE >= 85%, BRANCH >= 70%) -->
             <plugin>
                 <groupId>org.jacoco</groupId>

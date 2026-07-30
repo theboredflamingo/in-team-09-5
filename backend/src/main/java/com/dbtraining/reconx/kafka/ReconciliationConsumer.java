@@ -43,6 +43,7 @@ public class ReconciliationConsumer {
         switch (event.eventType()) {
             case TRADE_CREATED, TRADE_UPDATED -> reconEngine.scheduleRecon(event.tradeRef());
             case TRADE_CANCELLED -> reconEngine.cancelPendingRecon(event.tradeRef());
+            default -> log.debug("Ignoring unhandled event type {}", event.eventType());
         }
     }
 }

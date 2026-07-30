@@ -42,7 +42,7 @@ jobs:
 
       - name: Backend Checkstyle (ADV157)
         working-directory: backend
-        run: ./mvnw -B checkstyle:check || ./mvnw -B -q compile -DskipTests
+        run: ./mvnw -B validate -DskipTests
 
       - uses: actions/setup-node@v4
         with:
