@@ -18,8 +18,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
-    <!-- ADV006 — counterparties -->
+    <!-- TICKET-ADV006 — counterparties -->
     <changeSet id="002-create-counterparties" author="trainer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="counterparties"/>
+            </not>
+        </preConditions>
         <createTable tableName="counterparties">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -34,8 +39,13 @@
         </rollback>
     </changeSet>
 
-    <!-- ADV006 — instruments -->
+    <!-- TICKET-ADV006 — instruments -->
     <changeSet id="002-create-instruments" author="trainer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="instruments"/>
+            </not>
+        </preConditions>
         <createTable tableName="instruments">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -51,8 +61,13 @@
         </rollback>
     </changeSet>
 
-    <!-- ADV006 — trades (non-partitioned base; 004 attaches partitions on Postgres) -->
+    <!-- TICKET-ADV006 — trades (non-partitioned base; 004 attaches partitions on Postgres) -->
     <changeSet id="002-create-trades" author="trainer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="trades"/>
+            </not>
+        </preConditions>
         <createTable tableName="trades">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -87,8 +102,13 @@
         </rollback>
     </changeSet>
 
-    <!-- ADV006 — settlements -->
+    <!-- TICKET-ADV006 — settlements -->
     <changeSet id="002-create-settlements" author="trainer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="settlements"/>
+            </not>
+        </preConditions>
         <createTable tableName="settlements">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
