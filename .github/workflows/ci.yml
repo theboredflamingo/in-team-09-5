@@ -9,7 +9,7 @@ name: ci
 
 on:
   push:
-    branches: [main, develop, "feature/**"]
+    branches: [main, develop, "feature/**", "ci/**"]
     tags: ["v*"]
   pull_request:
     branches: [main, develop]
