@@ -38,6 +38,10 @@
         <jjwt.version>0.12.6</jjwt.version>
         <testcontainers.version>1.21.4</testcontainers.version>
         <hypersistence.version>3.9.0</hypersistence.version>
+        <liquibase.url>jdbc:h2:mem:reconx_liquibase;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=USER</liquibase.url>
+        <liquibase.username>sa</liquibase.username>
+        <liquibase.password></liquibase.password>
+        <liquibase.driver>org.h2.Driver</liquibase.driver>
     </properties>
 
     <dependencies>
@@ -237,6 +241,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- ADV155 — Liquibase validate in CI and locally via mvn liquibase:validate -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <configuration>
+                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+                    <url>${liquibase.url}</url>
+                    <username>${liquibase.username}</username>
+                    <password>${liquibase.password}</password>
+                    <driver>${liquibase.driver}</driver>
+                </configuration>
             </plugin>
         </plugins>
     </build>

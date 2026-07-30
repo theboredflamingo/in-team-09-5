@@ -82,9 +82,14 @@ jobs:
         working-directory: backend
         run: sed -i 's/\r$//' mvnw && chmod +x mvnw
 
-      - name: Liquibase validate (ADV155)
+      - name: Liquibase validate
         working-directory: backend
-        run: ./mvnw -B liquibase:validate || true
+        run: |
+          ./mvnw -B liquibase:validate \
+            -Dliquibase.url=jdbc:postgresql://localhost:5432/reconx_test \
+            -Dliquibase.username=test \
+            -Dliquibase.password=test \
+            -Dliquibase.driver=org.postgresql.Driver
 
       - name: Backend build + test
         working-directory: backend
