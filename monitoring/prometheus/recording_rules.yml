@@ -1,0 +1,11 @@
+# Kafka 3.9 / Micrometer emits fetch_manager_* names; ADV140–142 panels use legacy names.
+groups:
+  - name: kafka_metric_compat
+    interval: 15s
+    rules:
+      - record: kafka_consumer_records_lag
+        expr: kafka_consumer_fetch_manager_records_lag
+      - record: kafka_consumer_records_consumed_total
+        expr: kafka_consumer_fetch_manager_records_consumed_total
+      - record: kafka_consumer_fetch_total
+        expr: kafka_consumer_fetch_manager_fetch_total

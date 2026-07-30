@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ============================================================================
+ TICKET-ADV008 — Materialised view mv_daily_recon_summary
+ WHAT:    Daily aggregate of matched/break counts + total notional, used by
+          the dashboard's "today at a glance" cards.
+ HOW:     REFRESH MATERIALIZED VIEW CONCURRENTLY (requires unique index).
+          Scheduled refresh is done by a cron job (not shown — Day 6 task).
+ WHY:     Computing daily stats over a partitioned 50M-row table at every
+          dashboard load is 600ms+; the matview is 5ms.
+ OBSERVE: SELECT * FROM mv_daily_recon_summary returns one row per day.
+ ============================================================================
+-->
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DlqMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.model</a> &gt; <span class="el_source">DlqMessage.java</span></div><h1>DlqMessage.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.model;
+
+import com.dbtraining.reconx.dto.TradeEvent;
+import jakarta.persistence.*;
+
+import java.time.Instant;
+
+/**
+ * TICKET-ADV136 — Persisted DLQ record written by {@link com.dbtraining.reconx.kafka.DlqConsumer}.
+ */
+@Entity
+@Table(name = &quot;dlq_messages&quot;)
+public class DlqMessage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;event_id&quot;, nullable = false, unique = true, length = 36)
+    private String eventId;
+
+    @Column(name = &quot;trade_ref&quot;, nullable = false, length = 30)
+    private String tradeRef;
+
+    @Column(name = &quot;original_topic&quot;, nullable = false, length = 100)
+    private String originalTopic;
+
+    @Column(name = &quot;topic_partition&quot;, nullable = false)
+    private int partition;
+
+    @Column(name = &quot;record_offset&quot;, nullable = false)
+    private long offset;
+
+    @Convert(converter = TradeEventConverter.class)
+    @Column(name = &quot;payload_json&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+    private TradeEvent payload;
+
+    @Column(name = &quot;reason&quot;, columnDefinition = &quot;TEXT&quot;)
+    private String reason;
+
+    @Column(name = &quot;first_seen&quot;, nullable = false)
+    private Instant firstSeen;
+
+<span class="fc" id="L44">    protected DlqMessage() {}</span>
+
+<span class="nc" id="L46">    private DlqMessage(Builder b) {</span>
+<span class="nc" id="L47">        this.eventId = b.eventId;</span>
+<span class="nc" id="L48">        this.tradeRef = b.tradeRef;</span>
+<span class="nc" id="L49">        this.originalTopic = b.originalTopic;</span>
+<span class="nc" id="L50">        this.partition = b.partition;</span>
+<span class="nc" id="L51">        this.offset = b.offset;</span>
+<span class="nc" id="L52">        this.payload = b.payload;</span>
+<span class="nc" id="L53">        this.reason = b.reason;</span>
+<span class="nc" id="L54">        this.firstSeen = b.firstSeen;</span>
+<span class="nc" id="L55">    }</span>
+
+    public static Builder builder() {
+<span class="nc" id="L58">        return new Builder();</span>
+    }
+
+<span class="nc" id="L61">    public Long getId()              { return id; }</span>
+<span class="nc" id="L62">    public String getEventId()         { return eventId; }</span>
+<span class="nc" id="L63">    public String getTradeRef()      { return tradeRef; }</span>
+<span class="nc" id="L64">    public String getOriginalTopic() { return originalTopic; }</span>
+<span class="nc" id="L65">    public int getPartition()        { return partition; }</span>
+<span class="nc" id="L66">    public long getOffset()          { return offset; }</span>
+<span class="nc" id="L67">    public TradeEvent getPayload()   { return payload; }</span>
+<span class="nc" id="L68">    public String getReason()        { return reason; }</span>
+<span class="nc" id="L69">    public Instant getFirstSeen()    { return firstSeen; }</span>
+
+<span class="nc" id="L71">    public static final class Builder {</span>
+        private String eventId;
+        private String tradeRef;
+        private String originalTopic;
+        private int partition;
+        private long offset;
+        private TradeEvent payload;
+        private String reason;
+        private Instant firstSeen;
+
+<span class="nc" id="L81">        public Builder eventId(String eventId)           { this.eventId = eventId; return this; }</span>
+<span class="nc" id="L82">        public Builder tradeRef(String tradeRef)       { this.tradeRef = tradeRef; return this; }</span>
+<span class="nc" id="L83">        public Builder originalTopic(String topic)     { this.originalTopic = topic; return this; }</span>
+<span class="nc" id="L84">        public Builder partition(int partition)        { this.partition = partition; return this; }</span>
+<span class="nc" id="L85">        public Builder offset(long offset)             { this.offset = offset; return this; }</span>
+<span class="nc" id="L86">        public Builder payload(TradeEvent payload)     { this.payload = payload; return this; }</span>
+<span class="nc" id="L87">        public Builder reason(String reason)           { this.reason = reason; return this; }</span>
+<span class="nc" id="L88">        public Builder firstSeen(Instant firstSeen)    { this.firstSeen = firstSeen; return this; }</span>
+
+        public DlqMessage build() {
+<span class="nc" id="L91">            return new DlqMessage(this);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

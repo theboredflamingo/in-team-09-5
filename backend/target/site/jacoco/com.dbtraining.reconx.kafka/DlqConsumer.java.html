@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DlqConsumer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.kafka</a> &gt; <span class="el_source">DlqConsumer.java</span></div><h1>DlqConsumer.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.kafka;
+
+import com.dbtraining.reconx.dto.TradeEvent;
+import com.dbtraining.reconx.model.DlqMessage;
+import com.dbtraining.reconx.repository.DlqMessageRepository;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+
+/**
+ * TICKET-ADV136 — Persists each message routed to trade-events-dlq for operator review.
+ */
+@Component
+public class DlqConsumer {
+
+<span class="fc" id="L22">    private static final Logger log = LoggerFactory.getLogger(DlqConsumer.class);</span>
+
+    private final DlqMessageRepository repo;
+
+<span class="fc" id="L26">    public DlqConsumer(DlqMessageRepository repo) {</span>
+<span class="fc" id="L27">        this.repo = repo;</span>
+<span class="fc" id="L28">    }</span>
+
+    @KafkaListener(
+            topics = &quot;trade-events-dlq&quot;,
+            groupId = &quot;dlq-monitor&quot;,
+            containerFactory = &quot;tradeEventListenerContainerFactory&quot;
+    )
+    public void onDlqMessage(ConsumerRecord&lt;String, TradeEvent&gt; record,
+                             @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exMsg) {
+<span class="nc" id="L37">        TradeEvent event = record.value();</span>
+<span class="nc" id="L38">        log.error(&quot;DLQ: trade={} eventId={} topic={} partition={} offset={} reason={}&quot;,</span>
+<span class="nc" id="L39">                event.tradeRef(), event.eventId(), record.topic(),</span>
+<span class="nc" id="L40">                record.partition(), record.offset(), exMsg);</span>
+
+<span class="nc" id="L42">        repo.save(DlqMessage.builder()</span>
+<span class="nc" id="L43">                .eventId(event.eventId().toString())</span>
+<span class="nc" id="L44">                .tradeRef(event.tradeRef())</span>
+<span class="nc" id="L45">                .originalTopic(record.topic().replace(&quot;-dlq&quot;, &quot;&quot;))</span>
+<span class="nc" id="L46">                .partition(record.partition())</span>
+<span class="nc" id="L47">                .offset(record.offset())</span>
+<span class="nc" id="L48">                .payload(event)</span>
+<span class="nc" id="L49">                .reason(exMsg)</span>
+<span class="nc" id="L50">                .firstSeen(Instant.now())</span>
+<span class="nc" id="L51">                .build());</span>
+<span class="nc" id="L52">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TradeFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.model</a> &gt; <span class="el_source">TradeFactory.java</span></div><h1>TradeFactory.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.model;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Map;
+
+/**
+ * ============================================================================
+ * TICKET-ADV023 — TradeFactory: build a TradeType by asset-class string
+ *
+ * WHAT:    Single entry point that takes an asset-class string + a map of
+ *          field values and returns the right TradeType impl.
+ * HOW:     Switch on the asset-class string, dispatch to the correct
+ *          builder. Map values are cast/parsed per asset class.
+ * WHY:     The Kafka consumer + REST POST endpoint both need to convert an
+ *          untyped payload into a typed TradeType. Centralising the
+ *          construction here means the parsing logic lives in one place.
+ * OBSERVE: TradeFactoryTest.create_unknownAssetClass_throws fails when a
+ *          new TradeType impl is added without updating the switch.
+ * HINT:    Sealed hierarchy guarantees that every concrete TradeType MUST be
+ *          listed in TradeType.permits — so this switch can be made
+ *          exhaustive over assetClass enum.
+ * ============================================================================
+ */
+public final class TradeFactory {
+
+    private TradeFactory() { }
+
+    public static TradeType create(String assetClass, Map&lt;String, Object&gt; p) {
+<span class="nc" id="L30">        TradeType.AssetClass ac = TradeType.AssetClass.valueOf(assetClass.toUpperCase());</span>
+<span class="nc bnc" id="L31" title="All 4 branches missed.">        return switch (ac) {</span>
+<span class="nc" id="L32">            case EQUITY     -&gt; equity(p);</span>
+<span class="nc" id="L33">            case FX         -&gt; fx(p);</span>
+<span class="nc" id="L34">            case BOND       -&gt; bond(p);</span>
+<span class="nc" id="L35">            case DERIVATIVE -&gt; derivative(p);</span>
+        };
+    }
+
+    private static EquityTrade equity(Map&lt;String, Object&gt; p) {
+<span class="nc" id="L40">        return EquityTrade.builder()</span>
+<span class="nc" id="L41">                .tradeRef(TradeRef.of((String) p.get(&quot;tradeRef&quot;)))</span>
+<span class="nc" id="L42">                .instrumentSymbol((String) p.get(&quot;symbol&quot;))</span>
+<span class="nc" id="L43">                .quantity(new BigDecimal(p.get(&quot;quantity&quot;).toString()))</span>
+<span class="nc" id="L44">                .price(new BigDecimal(p.get(&quot;price&quot;).toString()))</span>
+<span class="nc" id="L45">                .currency((String) p.get(&quot;currency&quot;))</span>
+<span class="nc" id="L46">                .side(Side.valueOf((String) p.get(&quot;side&quot;)))</span>
+<span class="nc" id="L47">                .tradeDate(LocalDate.parse((String) p.get(&quot;tradeDate&quot;)))</span>
+<span class="nc" id="L48">                .counterpartyId(((Number) p.get(&quot;counterpartyId&quot;)).longValue())</span>
+<span class="nc" id="L49">                .build();</span>
+    }
+
+    private static FXTrade fx(Map&lt;String, Object&gt; p) {
+<span class="nc" id="L53">        return FXTrade.builder()</span>
+<span class="nc" id="L54">                .tradeRef(TradeRef.of((String) p.get(&quot;tradeRef&quot;)))</span>
+<span class="nc" id="L55">                .ccy1((String) p.get(&quot;ccy1&quot;))</span>
+<span class="nc" id="L56">                .ccy2((String) p.get(&quot;ccy2&quot;))</span>
+<span class="nc" id="L57">                .notionalCcy1(new BigDecimal(p.get(&quot;notionalCcy1&quot;).toString()))</span>
+<span class="nc" id="L58">                .fxRate(new BigDecimal(p.get(&quot;fxRate&quot;).toString()))</span>
+<span class="nc" id="L59">                .side(Side.valueOf((String) p.get(&quot;side&quot;)))</span>
+<span class="nc" id="L60">                .tradeDate(LocalDate.parse((String) p.get(&quot;tradeDate&quot;)))</span>
+<span class="nc" id="L61">                .counterpartyId(((Number) p.get(&quot;counterpartyId&quot;)).longValue())</span>
+<span class="nc" id="L62">                .build();</span>
+    }
+
+    private static BondTrade bond(Map&lt;String, Object&gt; p) {
+<span class="nc" id="L66">        return BondTrade.builder()</span>
+<span class="nc" id="L67">                .tradeRef(TradeRef.of((String) p.get(&quot;tradeRef&quot;)))</span>
+<span class="nc" id="L68">                .isin((String) p.get(&quot;isin&quot;))</span>
+<span class="nc" id="L69">                .faceValue(new BigDecimal(p.get(&quot;faceValue&quot;).toString()))</span>
+<span class="nc" id="L70">                .couponRate(new BigDecimal(p.get(&quot;couponRate&quot;).toString()))</span>
+<span class="nc" id="L71">                .maturityDate(LocalDate.parse((String) p.get(&quot;maturityDate&quot;)))</span>
+<span class="nc" id="L72">                .currency((String) p.get(&quot;currency&quot;))</span>
+<span class="nc" id="L73">                .side(Side.valueOf((String) p.get(&quot;side&quot;)))</span>
+<span class="nc" id="L74">                .tradeDate(LocalDate.parse((String) p.get(&quot;tradeDate&quot;)))</span>
+<span class="nc" id="L75">                .counterpartyId(((Number) p.get(&quot;counterpartyId&quot;)).longValue())</span>
+<span class="nc" id="L76">                .build();</span>
+    }
+
+    private static DerivativeTrade derivative(Map&lt;String, Object&gt; p) {
+<span class="nc" id="L80">        return DerivativeTrade.builder()</span>
+<span class="nc" id="L81">                .tradeRef(TradeRef.of((String) p.get(&quot;tradeRef&quot;)))</span>
+<span class="nc" id="L82">                .underlying((String) p.get(&quot;underlying&quot;))</span>
+<span class="nc" id="L83">                .strike(new BigDecimal(p.get(&quot;strike&quot;).toString()))</span>
+<span class="nc" id="L84">                .quantity(new BigDecimal(p.get(&quot;quantity&quot;).toString()))</span>
+<span class="nc" id="L85">                .expiry(LocalDate.parse((String) p.get(&quot;expiry&quot;)))</span>
+<span class="nc" id="L86">                .optionType(DerivativeTrade.OptionType.valueOf((String) p.get(&quot;optionType&quot;)))</span>
+<span class="nc" id="L87">                .currency((String) p.get(&quot;currency&quot;))</span>
+<span class="nc" id="L88">                .side(Side.valueOf((String) p.get(&quot;side&quot;)))</span>
+<span class="nc" id="L89">                .tradeDate(LocalDate.parse((String) p.get(&quot;tradeDate&quot;)))</span>
+<span class="nc" id="L90">                .counterpartyId(((Number) p.get(&quot;counterpartyId&quot;)).longValue())</span>
+<span class="nc" id="L91">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KafkaErrorHandlerConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.kafka</a> &gt; <span class="el_source">KafkaErrorHandlerConfig.java</span></div><h1>KafkaErrorHandlerConfig.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.kafka;
+
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.TopicPartition;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.DeserializationException;
+import org.springframework.util.backoff.ExponentialBackOff;
+
+/**
+ * ============================================================================
+ * TICKET-ADV134 — DLQ via DeadLetterPublishingRecoverer (failed messages
+ *                routed to {topic}-dlq with the same partition number)
+ * TICKET-ADV135 — Retry strategy: 3 attempts with exponential backoff
+ *                (1s, 2s, 4s) before giving up to DLQ
+ *
+ * WHAT:    Spring Kafka error handler that retries with backoff and on
+ *          final failure publishes the poison record to the corresponding
+ *          DLQ topic.
+ * HOW:     One @Bean DefaultErrorHandler combining a
+ *          DeadLetterPublishingRecoverer + ExponentialBackOff.
+ * WHY:     Without this, an exception in a listener kills the consumer
+ *          thread and the whole partition stalls. With it, retries happen,
+ *          and a final failure is observable (DLQ topic) rather than lost.
+ * OBSERVE: Force an exception in a consumer — Kafdrop should show the
+ *          record on `trade-events-dlq` with the same partition as the
+ *          original.
+ *
+ * GOTCHA:  trade-events-dlq must already exist (TICKET-ADV128). The
+ *          recoverer does NOT auto-create the topic.
+ * ============================================================================
+ */
+@Configuration
+<span class="fc" id="L37">public class KafkaErrorHandlerConfig {</span>
+
+    @Bean
+    public DefaultErrorHandler errorHandler(KafkaOperations&lt;Object, Object&gt; template) {
+<span class="fc" id="L41">        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(</span>
+                template,
+                (ConsumerRecord&lt;?, ?&gt; rec, Exception ex) -&gt;
+<span class="fc" id="L44">                        new TopicPartition(rec.topic() + &quot;-dlq&quot;, rec.partition()));</span>
+
+        // ADV135: ~1s + 2s + 4s retries (8s total budget) before DLQ publish.
+<span class="fc" id="L47">        ExponentialBackOff backoff = new ExponentialBackOff(1000L, 2.0);</span>
+<span class="fc" id="L48">        backoff.setMaxElapsedTime(8_000L);</span>
+
+<span class="fc" id="L50">        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backoff);</span>
+<span class="fc" id="L51">        handler.addNotRetryableExceptions(DeserializationException.class, IllegalArgumentException.class);</span>
+<span class="fc" id="L52">        return handler;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
