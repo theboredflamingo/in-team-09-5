@@ -14,7 +14,7 @@ groups:
             relativeTimeRange:
               from: 600
               to: 0
-            datasourceUid: reconx-prometheus
+            datasourceUid: prometheus
             model:
               editorMode: code
               expr: sum(kafka_consumer_records_consumed_total{topic="trade-events-dlq"})
