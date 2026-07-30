@@ -66,6 +66,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_HOSTNAME: localhost
     networks:
       - reconx
     healthcheck:
@@ -74,6 +76,22 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+
+  kafka-jmx-exporter:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: reconx-kafka-jmx-exporter
+    network_mode: "service:kafka"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - java -jar /opt/jmx/jmx_prometheus_httpserver.jar 9101 /opt/jmx/kafka-jmx-remote.yml
+    volumes:
+      - ./monitoring/prometheus/jmx_prometheus_httpserver.jar:/opt/jmx/jmx_prometheus_httpserver.jar:ro
+      - ./monitoring/prometheus/kafka-jmx-remote.yml:/opt/jmx/kafka-jmx-remote.yml:ro
+    restart: unless-stopped
 
   backend:
     build: ./backend
