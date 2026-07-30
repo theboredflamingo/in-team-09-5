@@ -36,6 +36,10 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Prepare Maven wrapper
+        working-directory: backend
+        run: sed -i 's/\r$//' mvnw && chmod +x mvnw
+
       - name: Backend Checkstyle (ADV157)
         working-directory: backend
         run: ./mvnw -B checkstyle:check || ./mvnw -B -q compile -DskipTests
@@ -73,6 +77,10 @@ jobs:
           java-version: "21"
           distribution: temurin
           cache: maven
+
+      - name: Prepare Maven wrapper
+        working-directory: backend
+        run: sed -i 's/\r$//' mvnw && chmod +x mvnw
 
       - name: Liquibase validate (ADV155)
         working-directory: backend
