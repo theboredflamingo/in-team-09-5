@@ -1,11 +1,10 @@
-# TICKET-ADV150 — Auto-provision the Prometheus datasource
 apiVersion: 1
+
 datasources:
   - name: Prometheus
-    uid: reconx-prometheus
     type: prometheus
+    uid: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    jsonData:
-      timeInterval: 10s
+    editable: false

@@ -1,18 +1,30 @@
-# TICKET-ADV149 — Prometheus scrape config
+# TICKET-ADV149 — Prometheus scrape config (backend actuator + Kafka JMX)
 global:
   scrape_interval: 10s
   evaluation_interval: 10s
 
 rule_files:
-  - "alerts.yml"
+  - /etc/prometheus/recording_rules.yml
 
 scrape_configs:
-
-  - job_name: 'reconx-backend'
-    metrics_path: '/api/actuator/prometheus'
+  - job_name: reconx-backend
+    metrics_path: /api/actuator/prometheus
     static_configs:
-      - targets: ['backend:8080']
+      - targets: ["backend:8080"]
+        labels:
+          app: reconx
+          service: backend
 
-  - job_name: 'prometheus'
+  - job_name: kafka-jmx
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["kafka:9101"]
+        labels:
+          app: reconx
+          service: kafka
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          app: reconx
+          service: prometheus

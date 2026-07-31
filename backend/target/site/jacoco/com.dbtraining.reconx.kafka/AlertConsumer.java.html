@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlertConsumer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.kafka</a> &gt; <span class="el_source">AlertConsumer.java</span></div><h1>AlertConsumer.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.kafka;
+
+import com.dbtraining.reconx.dto.SystemAlert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+/**
+ * ============================================================================
+ * TICKET-ADV133 — AlertConsumer
+ *
+ * WHAT:    Subscribes to `system-alerts` and logs + forwards each alert.
+ * HOW:     @KafkaListener on system-alerts, groupId alert-service. Delegates
+ *          to pluggable AlertSink (NoopAlertSink in training).
+ * WHY:     Single-partition topic preserves global alert ordering.
+ * OBSERVE: Publish a SystemAlert -&gt; WARN log line + alert-service group in Kafdrop.
+ * ============================================================================
+ */
+@Component
+public class AlertConsumer {
+
+<span class="fc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AlertConsumer.class);</span>
+    private final AlertSink sink;
+
+<span class="fc" id="L26">    public AlertConsumer(AlertSink sink) {</span>
+<span class="fc" id="L27">        this.sink = sink;</span>
+<span class="fc" id="L28">    }</span>
+
+    @KafkaListener(
+            topics = KafkaTopicsConfig.SYSTEM_ALERTS,
+            groupId = &quot;alert-service&quot;,
+            containerFactory = &quot;systemAlertListenerContainerFactory&quot;)
+    public void onAlert(SystemAlert alert) {
+<span class="nc" id="L35">        log.warn(&quot;WARN ALERT severity={} code={} message={}&quot;,</span>
+<span class="nc" id="L36">                alert.severity(), alert.code(), alert.message());</span>
+<span class="nc" id="L37">        sink.notify(alert);</span>
+<span class="nc" id="L38">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

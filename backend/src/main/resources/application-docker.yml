@@ -1,0 +1,22 @@
+# =============================================================================
+# TICKET-ADV151 — docker profile: Liquibase migrations on container startup
+#
+# WHAT:    Pins Liquibase + JPA validate for the compose stack so migrations
+#          apply before the backend accepts traffic.
+# HOW:     Activated via SPRING_PROFILES_ACTIVE=docker,uat in docker-compose.
+#          Liquibase runs during Spring Boot startup; Hibernate only validates.
+# WHY:     Liquibase owns the schema — ddl-auto must never be update/create in
+#          containers, or Hibernate can silently drift from the changelog.
+# OBSERVE: Backend logs show "Successfully released change log lock" before
+#          "Started ReconxApplication".
+# =============================================================================
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    contexts: prod
+    drop-first: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate

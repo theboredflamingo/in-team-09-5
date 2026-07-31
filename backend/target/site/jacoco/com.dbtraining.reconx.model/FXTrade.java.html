@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FXTrade.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.model</a> &gt; <span class="el_source">FXTrade.java</span></div><h1>FXTrade.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.model;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Currency;
+import java.util.Objects;
+
+/**
+ * ============================================================================
+ * TICKET-ADV020 — FXTrade with Builder pattern
+ *
+ * WHAT:    FX spot/forward trade — two currencies, a notional in ccy1, and
+ *          an fxRate.
+ * HOW:     Same builder pattern as EquityTrade. notional() converts to ccy2
+ *          via fxRate so reconciliation rolls up in the trade's quote ccy.
+ * WHY:     FX has two natural sides — a EUR/USD trade is BOTH a buy of EUR
+ *          AND a sell of USD. Modelling that with two distinct currency
+ *          fields makes settlement-side reasoning explicit.
+ * OBSERVE: notional().currency() == ccy2; .amount() == notionalCcy1 * fxRate.
+ * ============================================================================
+ */
+public final class FXTrade implements TradeType {
+
+    private final TradeRef tradeRef;
+    private final Currency ccy1;
+    private final Currency ccy2;
+    private final BigDecimal notionalCcy1;
+    private final BigDecimal fxRate;
+    private final Side side;
+    private final LocalDate tradeDate;
+    private final long counterpartyId;
+
+<span class="nc" id="L33">    private FXTrade(Builder b) {</span>
+<span class="nc" id="L34">        this.tradeRef       = b.tradeRef;</span>
+<span class="nc" id="L35">        this.ccy1           = b.ccy1;</span>
+<span class="nc" id="L36">        this.ccy2           = b.ccy2;</span>
+<span class="nc" id="L37">        this.notionalCcy1   = b.notionalCcy1;</span>
+<span class="nc" id="L38">        this.fxRate         = b.fxRate;</span>
+<span class="nc" id="L39">        this.side           = b.side;</span>
+<span class="nc" id="L40">        this.tradeDate      = b.tradeDate;</span>
+<span class="nc" id="L41">        this.counterpartyId = b.counterpartyId;</span>
+<span class="nc" id="L42">    }</span>
+
+<span class="nc" id="L44">    public static Builder builder() { return new Builder(); }</span>
+
+<span class="nc" id="L46">    @Override public TradeRef tradeRef()     { return tradeRef; }</span>
+<span class="nc" id="L47">    @Override public LocalDate tradeDate()   { return tradeDate; }</span>
+<span class="nc" id="L48">    @Override public AssetClass assetClass() { return AssetClass.FX; }</span>
+
+    /** Notional in ccy2 = notionalCcy1 * fxRate. */
+    @Override public Money notional() {
+<span class="nc" id="L52">        return new Money(notionalCcy1.multiply(fxRate), ccy2);</span>
+    }
+
+<span class="nc" id="L55">    public Currency ccy1()           { return ccy1; }</span>
+<span class="nc" id="L56">    public Currency ccy2()           { return ccy2; }</span>
+<span class="nc" id="L57">    public BigDecimal notionalCcy1() { return notionalCcy1; }</span>
+<span class="nc" id="L58">    public BigDecimal fxRate()       { return fxRate; }</span>
+<span class="nc" id="L59">    public Side side()               { return side; }</span>
+<span class="nc" id="L60">    public long counterpartyId()     { return counterpartyId; }</span>
+
+    @Override public boolean equals(Object o) {
+<span class="nc bnc" id="L63" title="All 4 branches missed.">        return (o instanceof FXTrade other) &amp;&amp; tradeRef.equals(other.tradeRef);</span>
+    }
+    @Override public int hashCode() {
+<span class="nc" id="L66">        return tradeRef.hashCode();</span>
+    }
+
+    @Override public String toString() {
+<span class="nc" id="L70">        return &quot;FXTrade[ref=%s, %s/%s, notional=%s %s, rate=%s, side=%s]&quot;</span>
+<span class="nc" id="L71">                .formatted(tradeRef, ccy1.getCurrencyCode(), ccy2.getCurrencyCode(),</span>
+<span class="nc" id="L72">                        notionalCcy1, ccy1.getCurrencyCode(), fxRate, side);</span>
+    }
+
+<span class="nc" id="L75">    public static final class Builder {</span>
+        private TradeRef tradeRef;
+        private Currency ccy1, ccy2;
+        private BigDecimal notionalCcy1, fxRate;
+        private Side side;
+        private LocalDate tradeDate;
+        private long counterpartyId;
+
+<span class="nc" id="L83">        public Builder tradeRef(TradeRef v)        { this.tradeRef = v; return this; }</span>
+<span class="nc" id="L84">        public Builder ccy1(String code)           { this.ccy1 = Currency.getInstance(code); return this; }</span>
+<span class="nc" id="L85">        public Builder ccy2(String code)           { this.ccy2 = Currency.getInstance(code); return this; }</span>
+<span class="nc" id="L86">        public Builder notionalCcy1(BigDecimal v)  { this.notionalCcy1 = v; return this; }</span>
+<span class="nc" id="L87">        public Builder fxRate(BigDecimal v)        { this.fxRate = v; return this; }</span>
+<span class="nc" id="L88">        public Builder side(Side v)                { this.side = v; return this; }</span>
+<span class="nc" id="L89">        public Builder tradeDate(LocalDate v)      { this.tradeDate = v; return this; }</span>
+<span class="nc" id="L90">        public Builder counterpartyId(long v)      { this.counterpartyId = v; return this; }</span>
+
+        public FXTrade build() {
+<span class="nc" id="L93">            Objects.requireNonNull(tradeRef,     &quot;tradeRef&quot;);</span>
+<span class="nc" id="L94">            Objects.requireNonNull(ccy1,         &quot;ccy1&quot;);</span>
+<span class="nc" id="L95">            Objects.requireNonNull(ccy2,         &quot;ccy2&quot;);</span>
+<span class="nc" id="L96">            Objects.requireNonNull(notionalCcy1, &quot;notionalCcy1&quot;);</span>
+<span class="nc" id="L97">            Objects.requireNonNull(fxRate,       &quot;fxRate&quot;);</span>
+<span class="nc" id="L98">            Objects.requireNonNull(side,         &quot;side&quot;);</span>
+<span class="nc" id="L99">            Objects.requireNonNull(tradeDate,    &quot;tradeDate&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (ccy1.equals(ccy2)) throw new IllegalStateException(&quot;ccy1 and ccy2 must differ&quot;);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (fxRate.signum() &lt;= 0) throw new IllegalStateException(&quot;fxRate must be &gt; 0&quot;);</span>
+<span class="nc" id="L102">            return new FXTrade(this);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

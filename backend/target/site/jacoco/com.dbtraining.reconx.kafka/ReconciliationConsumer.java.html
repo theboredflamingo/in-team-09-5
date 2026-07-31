@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReconciliationConsumer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.kafka</a> &gt; <span class="el_source">ReconciliationConsumer.java</span></div><h1>ReconciliationConsumer.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.kafka;
+
+import com.dbtraining.reconx.dto.TradeEvent;
+import com.dbtraining.reconx.service.ReconciliationEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+/**
+ * ============================================================================
+ * TICKET-ADV131 — ReconciliationConsumer
+ *
+ * WHAT:    Listens for `trade-events` and schedules a reconciliation job.
+ * HOW:     @KafkaListener on `trade-events`, groupId `recon-service`. In the
+ *          full implementation this would insert a row into recon_jobs and
+ *          trigger the engine; the trainer reference logs the trigger so
+ *          students can trace the message flow end-to-end.
+ * WHY:     Decouples &quot;trade saved&quot; from &quot;trade reconciled&quot; so a slow recon
+ *          run never blocks the trade-write path.
+ * OBSERVE: A POST /api/v1/trades shows up here as a log line referencing the
+ *          same eventId emitted by TradeEventProducer.
+ * ============================================================================
+ */
+@Component
+public class ReconciliationConsumer {
+
+<span class="fc" id="L28">    private static final Logger log = LoggerFactory.getLogger(ReconciliationConsumer.class);</span>
+    private final ReconciliationEngine reconEngine;
+
+<span class="fc" id="L31">    public ReconciliationConsumer(ReconciliationEngine reconEngine) {</span>
+<span class="fc" id="L32">        this.reconEngine = reconEngine;</span>
+<span class="fc" id="L33">    }</span>
+
+    @KafkaListener(
+            topics = KafkaTopicsConfig.TRADE_EVENTS,
+            groupId = &quot;recon-service&quot;,
+            containerFactory = &quot;tradeEventListenerContainerFactory&quot;)
+    public void onTradeEvent(TradeEvent event) {
+<span class="fc" id="L40">        log.info(&quot;Recon-trigger received eventId={} ref={} type={}&quot;,</span>
+<span class="fc" id="L41">                event.eventId(), event.tradeRef(), event.eventType());</span>
+
+<span class="pc bpc" id="L43" title="2 of 3 branches missed.">        switch (event.eventType()) {</span>
+<span class="fc" id="L44">            case TRADE_CREATED, TRADE_UPDATED -&gt; reconEngine.scheduleRecon(event.tradeRef());</span>
+<span class="nc" id="L45">            case TRADE_CANCELLED -&gt; reconEngine.cancelPendingRecon(event.tradeRef());</span>
+        }
+<span class="fc" id="L47">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

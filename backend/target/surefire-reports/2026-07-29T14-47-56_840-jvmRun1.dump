@@ -1,0 +1,134 @@
+# Created at 2026-07-29T14:48:47.914
+Thread dump for process (10992@LAPTOP-7J8CQ2HL) after 30 seconds shutdown timeout:
+"main" 
+   java.lang.Thread.State: WAITING
+        at java.base@26.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@26.0.1/java.lang.Object.wait(Object.java:391)
+        at java.base@26.0.1/java.lang.Thread.join(Thread.java:1914)
+        at java.base@26.0.1/java.lang.Thread.join(Thread.java:1990)
+        at java.base@26.0.1/java.lang.ApplicationShutdownHooks.runHooks(ApplicationShutdownHooks.java:114)
+        at java.base@26.0.1/java.lang.ApplicationShutdownHooks$1.run(ApplicationShutdownHooks.java:47)
+        at java.base@26.0.1/java.lang.Shutdown.runHooks(Shutdown.java:130)
+        at java.base@26.0.1/java.lang.Shutdown.exit(Shutdown.java:169)
+        at java.base@26.0.1/java.lang.Runtime.exit(Runtime.java:177)
+        at java.base@26.0.1/java.lang.System.exit(System.java:1541)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.acknowledgedExit(ForkedBooter.java:381)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:178)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+"Reference Handler" 
+   java.lang.Thread.State: RUNNABLE
+        at java.base@26.0.1/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+        at java.base@26.0.1/java.lang.ref.Reference.processPendingReferences(Reference.java:240)
+        at java.base@26.0.1/java.lang.ref.Reference$ReferenceHandler.run(Reference.java:202)
+
+"Finalizer" 
+   java.lang.Thread.State: WAITING
+        at java.base@26.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@26.0.1/java.lang.Object.wait(Object.java:391)
+        at java.base@26.0.1/java.lang.Object.wait(Object.java:353)
+        at java.base@26.0.1/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:137)
+        at java.base@26.0.1/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:215)
+        at java.base@26.0.1/java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:165)
+
+"Signal Dispatcher" 
+   java.lang.Thread.State: RUNNABLE
+
+"Attach Listener" 
+   java.lang.Thread.State: RUNNABLE
+
+"Notification Thread" 
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@26.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@26.0.1/java.lang.Object.wait(Object.java:391)
+        at java.base@26.0.1/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:123)
+        at java.base@26.0.1/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:201)
+        at java.base@26.0.1/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:146)
+        at java.base@26.0.1/java.lang.Thread.runWith(Thread.java:1529)
+        at java.base@26.0.1/java.lang.Thread.run(Thread.java:1516)
+        at java.base@26.0.1/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:148)
+
+"HikariPool-1:housekeeper" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@26.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@26.0.1/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:271)
+        at java.base@26.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:1803)
+        at java.base@26.0.1/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1166)
+        at java.base@26.0.1/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:883)
+        at java.base@26.0.1/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1016)
+        at java.base@26.0.1/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1076)
+        at java.base@26.0.1/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+        at java.base@26.0.1/java.lang.Thread.runWith(Thread.java:1529)
+        at java.base@26.0.1/java.lang.Thread.run(Thread.java:1516)
+
+"org.springframework.kafka.KafkaListenerEndpointContainer#2-0-C-1" 
+   java.lang.Thread.State: RUNNABLE
+        at java.base@26.0.1/sun.nio.ch.WEPoll.wait(Native Method)
+        at java.base@26.0.1/sun.nio.ch.WEPollSelectorImpl.doSelect(WEPollSelectorImpl.java:108)
+        at java.base@26.0.1/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:130)
+        at java.base@26.0.1/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:142)
+        at app//org.apache.kafka.common.network.Selector.select(Selector.java:894)
+        at app//org.apache.kafka.common.network.Selector.poll(Selector.java:485)
+        at app//org.apache.kafka.clients.NetworkClient.poll(NetworkClient.java:596)
+        at app//org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:282)
+        at app//org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:253)
+        at app//org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:244)
+        at app//org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.awaitPendingRequests(ConsumerNetworkClient.java:355)
+        at app//org.apache.kafka.clients.consumer.internals.AbstractCoordinator.close(AbstractCoordinator.java:1140)
+        at app//org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.close(ConsumerCoordinator.java:987)
+        at app//org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.lambda$close$2(ClassicKafkaConsumer.java:1140)
+        at app//org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer$$Lambda/0x00000000332a71d8.run(Unknown Source)
+        at app//org.apache.kafka.common.utils.Utils.swallow(Utils.java:1050)
+        at app//org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.close(ClassicKafkaConsumer.java:1140)
+        at app//org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.close(ClassicKafkaConsumer.java:1109)
+        at app//org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.close(ClassicKafkaConsumer.java:1097)
+        at app//org.apache.kafka.clients.consumer.KafkaConsumer.close(KafkaConsumer.java:1757)
+        at app//org.springframework.kafka.core.DefaultKafkaConsumerFactory$ExtendedKafkaConsumer.close(DefaultKafkaConsumerFactory.java:515)
+        at app//org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.wrapUp(KafkaMessageListenerContainer.java:1967)
+        at app//org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.run(KafkaMessageListenerContainer.java:1393)
+        at java.base@26.0.1/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1825)
+        at java.base@26.0.1/java.lang.Thread.runWith(Thread.java:1529)
+        at java.base@26.0.1/java.lang.Thread.run(Thread.java:1516)
+
+"surefire-forkedjvm-last-ditch-daemon-shutdown-thread-30s" 
+   java.lang.Thread.State: RUNNABLE
+        at java.management@26.0.1/sun.management.ThreadImpl.getThreadInfo1(Native Method)
+        at java.management@26.0.1/sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:184)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.generateThreadDump(ForkedBooter.java:579)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.access$600(ForkedBooter.java:79)
+        at app//org.apache.maven.surefire.booter.ForkedBooter$7.run(ForkedBooter.java:424)
+        at java.base@26.0.1/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545)
+        at java.base@26.0.1/java.util.concurrent.FutureTask.run(FutureTask.java:330)
+        at java.base@26.0.1/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309)
+        at java.base@26.0.1/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+        at java.base@26.0.1/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+        at java.base@26.0.1/java.lang.Thread.runWith(Thread.java:1529)
+        at java.base@26.0.1/java.lang.Thread.run(Thread.java:1516)
+
+"SpringApplicationShutdownHook" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@26.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@26.0.1/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:271)
+        at java.base@26.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:792)
+        at java.base@26.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer.tryAcquireSharedNanos(AbstractQueuedSynchronizer.java:1166)
+        at java.base@26.0.1/java.util.concurrent.CountDownLatch.await(CountDownLatch.java:276)
+        at app//org.springframework.context.support.DefaultLifecycleProcessor$LifecycleGroup.stop(DefaultLifecycleProcessor.java:627)
+        at app//org.springframework.context.support.DefaultLifecycleProcessor$$Lambda/0x00000000332a5530.accept(Unknown Source)
+        at java.base@26.0.1/java.lang.Iterable.forEach(Iterable.java:75)
+        at app//org.springframework.context.support.DefaultLifecycleProcessor.stopBeans(DefaultLifecycleProcessor.java:432)
+        at app//org.springframework.context.support.DefaultLifecycleProcessor.onClose(DefaultLifecycleProcessor.java:323)
+        at app//org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1172)
+        at app//org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1126)
+        at app//org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:147)
+        at app//org.springframework.boot.SpringApplicationShutdownHook$$Lambda/0x00000000332a4e60.accept(Unknown Source)
+        at java.base@26.0.1/java.lang.Iterable.forEach(Iterable.java:75)
+        at app//org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116)
+        at java.base@26.0.1/java.lang.Thread.runWith(Thread.java:1529)
+        at java.base@26.0.1/java.lang.Thread.run(Thread.java:1516)
+
+
+

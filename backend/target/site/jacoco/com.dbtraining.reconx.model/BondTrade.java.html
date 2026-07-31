@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BondTrade.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.model</a> &gt; <span class="el_source">BondTrade.java</span></div><h1>BondTrade.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.model;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Currency;
+import java.util.Objects;
+
+/**
+ * ============================================================================
+ * TICKET-ADV021 — BondTrade with Builder pattern
+ *
+ * WHAT:    Fixed-income trade — couponRate, maturityDate, faceValue, isin.
+ * HOW:     Same builder pattern. notional() = faceValue (in the bond's ccy).
+ * WHY:     Bonds need couponRate/maturity for downstream cashflow modelling.
+ *          Modelling them on the trade is the simplest path for the demo.
+ * ============================================================================
+ */
+public final class BondTrade implements TradeType {
+
+    private final TradeRef tradeRef;
+    private final String isin;
+    private final BigDecimal faceValue;
+    private final BigDecimal couponRate;
+    private final LocalDate maturityDate;
+    private final Currency currency;
+    private final Side side;
+    private final LocalDate tradeDate;
+    private final long counterpartyId;
+
+<span class="nc" id="L30">    private BondTrade(Builder b) {</span>
+<span class="nc" id="L31">        this.tradeRef       = b.tradeRef;</span>
+<span class="nc" id="L32">        this.isin           = b.isin;</span>
+<span class="nc" id="L33">        this.faceValue      = b.faceValue;</span>
+<span class="nc" id="L34">        this.couponRate     = b.couponRate;</span>
+<span class="nc" id="L35">        this.maturityDate   = b.maturityDate;</span>
+<span class="nc" id="L36">        this.currency       = b.currency;</span>
+<span class="nc" id="L37">        this.side           = b.side;</span>
+<span class="nc" id="L38">        this.tradeDate      = b.tradeDate;</span>
+<span class="nc" id="L39">        this.counterpartyId = b.counterpartyId;</span>
+<span class="nc" id="L40">    }</span>
+
+<span class="nc" id="L42">    public static Builder builder() { return new Builder(); }</span>
+
+<span class="nc" id="L44">    @Override public TradeRef tradeRef()     { return tradeRef; }</span>
+<span class="nc" id="L45">    @Override public LocalDate tradeDate()   { return tradeDate; }</span>
+<span class="nc" id="L46">    @Override public AssetClass assetClass() { return AssetClass.BOND; }</span>
+
+    /** Notional = faceValue in the bond's currency. */
+    @Override public Money notional() {
+<span class="nc" id="L50">        return new Money(faceValue, currency);</span>
+    }
+
+<span class="nc" id="L53">    public String isin()              { return isin; }</span>
+<span class="nc" id="L54">    public BigDecimal faceValue()     { return faceValue; }</span>
+<span class="nc" id="L55">    public BigDecimal couponRate()    { return couponRate; }</span>
+<span class="nc" id="L56">    public LocalDate maturityDate()   { return maturityDate; }</span>
+<span class="nc" id="L57">    public Currency currency()        { return currency; }</span>
+<span class="nc" id="L58">    public Side side()                { return side; }</span>
+<span class="nc" id="L59">    public long counterpartyId()      { return counterpartyId; }</span>
+
+    @Override public boolean equals(Object o) {
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        return (o instanceof BondTrade other) &amp;&amp; tradeRef.equals(other.tradeRef);</span>
+    }
+    @Override public int hashCode() {
+<span class="nc" id="L65">        return tradeRef.hashCode();</span>
+    }
+
+    @Override public String toString() {
+<span class="nc" id="L69">        return &quot;BondTrade[ref=%s, isin=%s, face=%s %s, coupon=%s, maturity=%s, side=%s]&quot;</span>
+<span class="nc" id="L70">                .formatted(tradeRef, isin, faceValue, currency.getCurrencyCode(),</span>
+                        couponRate, maturityDate, side);
+    }
+
+<span class="nc" id="L74">    public static final class Builder {</span>
+        private TradeRef tradeRef;
+        private String isin;
+        private BigDecimal faceValue, couponRate;
+        private LocalDate maturityDate, tradeDate;
+        private Currency currency;
+        private Side side;
+        private long counterpartyId;
+
+<span class="nc" id="L83">        public Builder tradeRef(TradeRef v)        { this.tradeRef = v; return this; }</span>
+<span class="nc" id="L84">        public Builder isin(String v)              { this.isin = v; return this; }</span>
+<span class="nc" id="L85">        public Builder faceValue(BigDecimal v)     { this.faceValue = v; return this; }</span>
+<span class="nc" id="L86">        public Builder couponRate(BigDecimal v)    { this.couponRate = v; return this; }</span>
+<span class="nc" id="L87">        public Builder maturityDate(LocalDate v)   { this.maturityDate = v; return this; }</span>
+<span class="nc" id="L88">        public Builder currency(String code)       { this.currency = Currency.getInstance(code); return this; }</span>
+<span class="nc" id="L89">        public Builder side(Side v)                { this.side = v; return this; }</span>
+<span class="nc" id="L90">        public Builder tradeDate(LocalDate v)      { this.tradeDate = v; return this; }</span>
+<span class="nc" id="L91">        public Builder counterpartyId(long v)      { this.counterpartyId = v; return this; }</span>
+
+        public BondTrade build() {
+<span class="nc" id="L94">            Objects.requireNonNull(tradeRef,     &quot;tradeRef&quot;);</span>
+<span class="nc" id="L95">            Objects.requireNonNull(isin,         &quot;isin&quot;);</span>
+<span class="nc" id="L96">            Objects.requireNonNull(faceValue,    &quot;faceValue&quot;);</span>
+<span class="nc" id="L97">            Objects.requireNonNull(couponRate,   &quot;couponRate&quot;);</span>
+<span class="nc" id="L98">            Objects.requireNonNull(maturityDate, &quot;maturityDate&quot;);</span>
+<span class="nc" id="L99">            Objects.requireNonNull(currency,     &quot;currency&quot;);</span>
+<span class="nc" id="L100">            Objects.requireNonNull(side,         &quot;side&quot;);</span>
+<span class="nc" id="L101">            Objects.requireNonNull(tradeDate,    &quot;tradeDate&quot;);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (maturityDate.isBefore(tradeDate))</span>
+<span class="nc" id="L103">                throw new IllegalStateException(&quot;maturityDate cannot be before tradeDate&quot;);</span>
+<span class="nc" id="L104">            return new BondTrade(this);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

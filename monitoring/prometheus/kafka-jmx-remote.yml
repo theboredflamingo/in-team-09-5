@@ -1,0 +1,14 @@
+# Remote JMX scrape config for the kafka-jmx-exporter sidecar
+hostPort: localhost:9999
+ssl: false
+lowercaseOutputName: true
+rules:
+  - pattern: "kafka.server<type=BrokerTopicMetrics, name=(.+)PerSec, topic=(.+)><>Count"
+    name: kafka_server_brokertopicmetrics_$1_total
+    labels:
+      topic: "$2"
+  - pattern: "kafka.server<type=BrokerTopicMetrics, name=(.+)PerSec><>Count"
+    name: kafka_server_brokertopicmetrics_$1_total
+  - pattern: "kafka.server<type=ReplicaManager, name=(.+)><>Value"
+    name: kafka_server_replicamanager_$1
+  - pattern: ".*"
