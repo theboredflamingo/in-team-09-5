@@ -15,3 +15,67 @@ spring:
     properties:
       hibernate.format_sql: true
       hibernate.jdbc.time_zone: UTC
+    consumer:
+      group-id: reconx-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.dbtraining.reconx.dto
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.dbtraining.reconx.dto.TradeEvent
+
+server:
+  port: ${SERVER_PORT:8081}
+  servlet:
+    context-path: /api
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  metrics:
+    binders:
+      kafka:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        reconciliation.duration: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+    tags:
+      application: ${spring.application.name}
+
+reconx:
+  security:
+    jwt:
+      # dev secret only — UAT/PROD MUST override via env var
+      secret: ${JWT_SECRET:dev-secret-change-me-32-bytes-min!!}
+      expiration-minutes: ${JWT_EXP_MIN:60}
+      refresh-expiration-days: ${JWT_REFRESH_EXP_DAYS:7}
+      issuer: reconx
+
+logging:
+  level:
+    com.dbtraining.reconx: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    correlation: "[%X{correlationId:-}] [%X{tradeRef:-}]"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tagsSorter: alpha
+    operationsSorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
