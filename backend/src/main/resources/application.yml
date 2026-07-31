@@ -45,7 +45,10 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: false
+<<<<<<< Updated upstream
         enable.idempotence: true
+=======
+>>>>>>> Stashed changes
     consumer:
       group-id: reconx-service
       auto-offset-reset: earliest
@@ -55,10 +58,16 @@ spring:
         spring.json.trusted.packages: com.dbtraining.reconx.dto
         spring.json.use.type.headers: false
         spring.json.value.default.type: com.dbtraining.reconx.dto.TradeEvent
+<<<<<<< Updated upstream
         max.poll.records: 100
 
 server:
   port: 8081
+=======
+
+server:
+  port: ${SERVER_PORT:8081}
+>>>>>>> Stashed changes
   servlet:
     context-path: /api
 
