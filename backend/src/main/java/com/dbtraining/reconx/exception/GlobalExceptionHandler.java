@@ -22,34 +22,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TradeNotFoundException.class)
     public ProblemDetail notFound(TradeNotFoundException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        // TODO(TICKET-ADV062): return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        throw new UnsupportedOperationException("TICKET-ADV062");
     }
 
     @ExceptionHandler(DuplicateTradeRefException.class)
     public ProblemDetail duplicate(DuplicateTradeRefException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        // TODO(TICKET-ADV062): map DuplicateTradeRefException -> HttpStatus.CONFLICT (409).
+        throw new UnsupportedOperationException("TICKET-ADV062");
     }
 
     @ExceptionHandler(InvalidTradeException.class)
     public ProblemDetail invalid(InvalidTradeException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        // TODO(TICKET-ADV062): map InvalidTradeException -> HttpStatus.BAD_REQUEST (400).
+        throw new UnsupportedOperationException("TICKET-ADV062");
     }
 
     @ExceptionHandler(ReconciliationMismatchException.class)
     public ProblemDetail mismatch(ReconciliationMismatchException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        // TODO(TICKET-ADV062): map ReconciliationMismatchException -> HttpStatus.UNPROCESSABLE_ENTITY (422).
+        throw new UnsupportedOperationException("TICKET-ADV062");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail validation(MethodArgumentNotValidException ex) {
-        String detail = ex.getBindingResult().getFieldErrors().stream()
-                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
-                .collect(Collectors.joining("; "));
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        // TODO(TICKET-ADV062): join field errors ("field: message; ...") and return BAD_REQUEST ProblemDetail.
+        //   Hint: ex.getBindingResult().getFieldErrors().stream().map(...).collect(Collectors.joining("; "))
+        throw new UnsupportedOperationException("TICKET-ADV062");
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail constraint(ConstraintViolationException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        // TODO(TICKET-ADV062): map ConstraintViolationException -> HttpStatus.BAD_REQUEST (400).
+        throw new UnsupportedOperationException("TICKET-ADV062");
     }
 }

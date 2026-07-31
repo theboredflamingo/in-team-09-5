@@ -10,16 +10,15 @@ import com.dbtraining.reconx.repository.InstrumentRepository;
 import com.dbtraining.reconx.repository.TradeRepository;
 import com.dbtraining.reconx.repository.entity.Trade;
 import com.dbtraining.reconx.dto.TradeEvent;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static com.dbtraining.reconx.repository.TradeSpecifications.*;
 
@@ -43,115 +42,53 @@ public class TradeService {
     private final InstrumentRepository instRepo;
     private final TradeEventProducer events;
     private final TradeMetrics metrics;
-    private final ObjectMapper objectMapper;
 
     public TradeService(TradeRepository tradeRepo,
                         CounterpartyRepository cpRepo,
                         InstrumentRepository instRepo,
                         TradeEventProducer events,
-                        TradeMetrics metrics,
-                        ObjectMapper objectMapper) {
+                        TradeMetrics metrics) {
         this.tradeRepo = tradeRepo;
         this.cpRepo = cpRepo;
         this.instRepo = instRepo;
         this.events = events;
         this.metrics = metrics;
-        this.objectMapper = objectMapper;
     }
 
     public Trade create(TradeRequest req, String actor) {
-        tradeRepo.findByTradeRef(req.tradeRef()).ifPresent(t -> {
-            throw new DuplicateTradeRefException(req.tradeRef());
-        });
-        var instrument = instRepo.findById(req.instrumentId())
-                .orElseThrow(() -> new TradeNotFoundException("instrument " + req.instrumentId()));
-        var counterparty = cpRepo.findById(req.counterpartyId())
-                .orElseThrow(() -> new TradeNotFoundException("counterparty " + req.counterpartyId()));
-
-        var t = new Trade();
-        t.setTradeRef(req.tradeRef());
-        t.setInstrument(instrument);
-        t.setCounterparty(counterparty);
-        t.setAssetClass(req.assetClass());
-        t.setSide(req.side());
-        t.setQuantity(req.quantity());
-        t.setPrice(req.price());
-        t.setTradeDate(req.tradeDate());
-        t.setStatus("PENDING");
-        Trade saved = tradeRepo.save(t);
-
-        metrics.incrementTradeCreated();
-        metrics.recordTradeValue(req.quantity().multiply(req.price()).doubleValue());
-        events.publish(TradeEvent.created(saved.getTradeRef(), snapshot(saved)));
-        return saved;
+        // TODO(TICKET-ADV064): reject duplicate tradeRef via DuplicateTradeRefException,
+        //   build a new Trade with instrument + counterparty looked up from
+        //   their repos (throw TradeNotFoundException on miss), status = "PENDING",
+        //   save, then:
+        //     - metrics.incrementTradeCreated() + metrics.recordTradeValue(qty*price) — TICKET-ADV083
+        //     - events.publish(new TradeEvent(... TRADE_CREATED ... actor ...)) — TICKET-ADV129
+        throw new UnsupportedOperationException("TICKET-ADV064");
     }
 
     public Trade update(Long id, TradeRequest req, String actor) {
-        var t = tradeRepo.findById(id)
-                .orElseThrow(() -> new TradeNotFoundException("id " + id));
-        JsonNode before = snapshot(t);
-
-        t.setAssetClass(req.assetClass());
-        t.setSide(req.side());
-        t.setQuantity(req.quantity());
-        t.setPrice(req.price());
-        t.setTradeDate(req.tradeDate());
-        Trade saved = tradeRepo.save(t);
-
-        events.publish(TradeEvent.updated(saved.getTradeRef(), before, snapshot(saved)));
-        return saved;
+        // TODO(TICKET-ADV065): load by id (throw TradeNotFoundException if missing),
+        //   copy mutable fields from req, save, publish a TRADE_UPDATED event.
+        throw new UnsupportedOperationException("TICKET-ADV065");
     }
 
     public Trade updateStatus(Long id, String status, String actor) {
-        var t = tradeRepo.findById(id)
-                .orElseThrow(() -> new TradeNotFoundException("id " + id));
-        JsonNode before = snapshot(t);
-        t.setStatus(status);
-        Trade saved = tradeRepo.save(t);
-
-        events.publish(TradeEvent.updated(saved.getTradeRef(), before, snapshot(saved)));
-        return saved;
+        // TODO(TICKET-ADV066): load, setStatus(status), save, publish TRADE_UPDATED
+        //   with the new status in the "after" slot of the event.
+        throw new UnsupportedOperationException("TICKET-ADV066");
     }
 
     public void softDelete(Long id, String actor) {
-        var t = tradeRepo.findById(id)
-                .orElseThrow(() -> new TradeNotFoundException("id " + id));
-        JsonNode before = snapshot(t);
-        t.softDelete();
-        tradeRepo.save(t);
-
-        events.publish(TradeEvent.cancelled(t.getTradeRef(), before));
-    }
-
-    private JsonNode snapshot(Trade trade) {
-        ObjectNode node = objectMapper.createObjectNode();
-        node.put("tradeRef", trade.getTradeRef());
-        node.put("status", trade.getStatus());
-        node.put("side", trade.getSide());
-        node.put("assetClass", trade.getAssetClass());
-        node.put("quantity", trade.getQuantity());
-        node.put("price", trade.getPrice());
-        node.put("tradeDate", trade.getTradeDate().toString());
-        if (trade.getInstrument() != null) {
-            node.put("instrumentId", trade.getInstrument().getId());
-            node.put("instrumentSymbol", trade.getInstrument().getSymbol());
-        }
-        if (trade.getCounterparty() != null) {
-            node.put("counterpartyId", trade.getCounterparty().getId());
-            node.put("counterpartyName", trade.getCounterparty().getName());
-        }
-        if (trade.getDeletedAt() != null) {
-            node.put("deletedAt", trade.getDeletedAt().toString());
-        }
-        return node;
+        // TODO(TICKET-ADV067): load, call t.softDelete() (sets deleted_at), save,
+        //   publish a TRADE_CANCELLED event.
+        throw new UnsupportedOperationException("TICKET-ADV067");
     }
 
     @Transactional(readOnly = true)
     public Page<Trade> list(LocalDate from, LocalDate to, String status, Long counterpartyId, Pageable pageable) {
-        Specification<Trade> spec = Specification
-                .where(tradeDateBetween(from, to))
-                .and(hasStatus(status))
-                .and(hasCounterparty(counterpartyId));
-        return tradeRepo.findAll(spec, pageable);
+        // TODO(TICKET-ADV055 + TICKET-ADV056): combine the static helpers from
+        //   TradeSpecifications (hasStatus, tradeDateBetween, hasCounterparty)
+        //   via Specification.where(...).and(...) and call
+        //   tradeRepo.findAll(spec, pageable). Until JPA is in place, throw.
+        throw new UnsupportedOperationException("TICKET-ADV055");
     }
 }

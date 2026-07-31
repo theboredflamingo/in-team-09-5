@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -35,9 +34,4 @@ public interface TradeRepository
                               Pageable pageable);
 
     long countByStatus(String status);
-
-    /** Hard-delete every row (including soft-deleted) before an event-sourced rebuild. */
-    @Modifying
-    @Query(value = "DELETE FROM trades", nativeQuery = true)
-    void deleteAllHard();
 }

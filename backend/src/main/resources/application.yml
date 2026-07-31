@@ -1,9 +1,23 @@
+# =============================================================================
+# TICKET-ADV049 — Spring profile configuration (default + profile overrides)
+#
+# WHAT:    Base configuration shared across dev/uat/prod. Profile-specific
+#          overrides live in application-{profile}.yml.
+# HOW:     `spring.profiles.active` selects the override file. Each ticket
+#          surface (Kafka, JWT, cache, metrics) has a sensible default here.
+# WHY:     Multi-env config is a Day 4 sprint deliverable. Without profile
+#          separation, teams ship secrets to dev or run prod migrations on UAT.
+# OBSERVE: Boot the app with `-Dspring-boot.run.profiles=dev` — H2 is used,
+#          Liquibase runs, sample users are seeded.
+# =============================================================================
 spring:
   application:
     name: reconx
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
+  # ADV012 — Liquibase classpath wiring (the classic starter bug is missing the
+  # `classpath:` prefix here, which causes a silent skip on JAR builds).
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true

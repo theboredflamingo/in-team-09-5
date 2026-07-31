@@ -1,5 +1,0 @@
-# Created at 2026-07-29T14:11:54.841
-Boot Manifest-JAR contains absolute paths in classpath 'D:\RECONX\in-team-09-5\backend\target\test-classes'
-Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-'other' has different root
-

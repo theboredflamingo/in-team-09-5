@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ============================================================================
+ TICKET-ADV017 — Seed data (counterparties, instruments, sample trades, users)
+ WHAT:    Loads CSV files baked into the JAR.
+ HOW:     <loadData> reads from classpath — paths are relative to the
+          changeSet file. CSV headers must match column names.
+ WHY:     The student copy ships an empty DB; the trainer copy ships seeded
+          data so demos work the moment the app boots.
+ OBSERVE: SELECT count(*) FROM counterparties → 10. trades → 500.
+          users → 4 (admin/trader/viewer/recon analyst).
+ ============================================================================
+-->
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

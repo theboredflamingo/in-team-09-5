@@ -1,7 +1,6 @@
 target/
 .git/
 .idea/
-node_modules/
 *.iml
 *.log
 .mvn/wrapper/maven-wrapper.jar
