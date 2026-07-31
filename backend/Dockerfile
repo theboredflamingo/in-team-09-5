@@ -9,6 +9,8 @@ FROM eclipse-temurin:25-jdk AS build
 WORKDIR /workspace
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
+# Windows checkouts often have CRLF on mvnw; Linux then reports "./mvnw: not found".
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
 RUN ./mvnw -q -B dependency:go-offline || true
 COPY src src
 RUN ./mvnw -q -B -DskipTests package && \
