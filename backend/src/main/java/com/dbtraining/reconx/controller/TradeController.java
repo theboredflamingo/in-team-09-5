@@ -65,12 +65,10 @@ public class TradeController {
     @Operation(summary = "Create a trade")
     public ResponseEntity<TradeResponse> create(@Valid @RequestBody TradeRequest req,
                                                 @AuthenticationPrincipal Object principal) {
-        String actor = principal instanceof org.springframework.security.core.userdetails.UserDetails ud
-                ? ud.getUsername() : "system";
-        Trade saved = service.create(req, actor);
-        return ResponseEntity
-                .created(URI.create("/api/v1/trades/" + saved.getId()))
-                .body(mapper.toResponse(saved));
+        // TODO(TICKET-ADV064): call service.create(req, actor), build a Location
+        //   header at /api/v1/trades/{id}, and return 201 Created with the
+        //   mapped TradeResponse body.
+        throw new UnsupportedOperationException("TICKET-ADV064");
     }
 
     @PutMapping("/{id}")

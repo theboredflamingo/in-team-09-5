@@ -1,14 +1,6 @@
 package com.dbtraining.reconx.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.TopicPartition;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.core.KafkaOperations;
-import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
-import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.support.serializer.DeserializationException;
-import org.springframework.util.backoff.ExponentialBackOff;
 
 /**
  * ============================================================================
@@ -28,27 +20,26 @@ import org.springframework.util.backoff.ExponentialBackOff;
  * OBSERVE: Force an exception in a consumer — Kafdrop should show the
  *          record on `trade-events-dlq` with the same partition as the
  *          original.
+ * ============================================================================
  *
- * GOTCHA:  trade-events-dlq must already exist (TICKET-ADV128). The
+ *  TODO(TICKET-ADV134 + ADV135):
+ *    @Bean
+ *    public DefaultErrorHandler errorHandler(KafkaTemplate<Object,Object> template) {
+ *        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
+ *            template,
+ *            (ConsumerRecord<?,?> rec, Exception ex) ->
+ *                new TopicPartition(rec.topic() + "-dlq", rec.partition()));
+ *        ExponentialBackOff backoff = new ExponentialBackOff(1000L, 2.0);
+ *        backoff.setMaxAttempts(3);
+ *        return new DefaultErrorHandler(recoverer, backoff);
+ *    }
+ *
+ *  GOTCHA: trade-events-dlq must already exist (TICKET-ADV128). The
  *          recoverer does NOT auto-create the topic.
  * ============================================================================
  */
 @Configuration
 public class KafkaErrorHandlerConfig {
 
-    @Bean
-    public DefaultErrorHandler errorHandler(KafkaOperations<Object, Object> template) {
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
-                template,
-                (ConsumerRecord<?, ?> rec, Exception ex) ->
-                        new TopicPartition(rec.topic() + "-dlq", rec.partition()));
-
-        // ADV135: ~1s + 2s + 4s retries (8s total budget) before DLQ publish.
-        ExponentialBackOff backoff = new ExponentialBackOff(1000L, 2.0);
-        backoff.setMaxElapsedTime(8_000L);
-
-        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backoff);
-        handler.addNotRetryableExceptions(DeserializationException.class, IllegalArgumentException.class);
-        return handler;
-    }
+    // TODO(TICKET-ADV134 + ADV135): define the errorHandler @Bean — see comments above.
 }

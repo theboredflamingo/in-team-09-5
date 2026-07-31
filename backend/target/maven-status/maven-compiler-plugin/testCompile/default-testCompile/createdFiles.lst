@@ -1,10 +1,3 @@
-com\dbtraining\reconx\model\ReconciliationRuleTest.class
-com\dbtraining\reconx\service\TradeAggregatorTest.class
-com\dbtraining\reconx\kafka\DlqRoutingIT.class
-com\dbtraining\reconx\controller\AuditControllerTest.class
-com\dbtraining\reconx\service\ReconciliationEngineTest.class
-com\dbtraining\reconx\kafka\KafkaPipelineIT.class
-com\dbtraining\reconx\kafka\ExponentialBackOffTest.class
-com\dbtraining\reconx\dto\TradeEventTest.class
-com\dbtraining\reconx\controller\DlqAdminControllerTest.class
-com\dbtraining\reconx\model\EquityTradeTest.class
+com/dbtraining/reconx/model/ReconciliationRuleTest.class
+com/dbtraining/reconx/service/ReconciliationEngineTest.class
+com/dbtraining/reconx/model/EquityTradeTest.class
