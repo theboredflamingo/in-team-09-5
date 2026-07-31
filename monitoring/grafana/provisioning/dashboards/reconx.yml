@@ -1,4 +1,4 @@
-# TICKET-ADV150 — Provider definition: load every dashboard JSON in /var/lib/grafana/dashboards
+# TICKET-ADV150 — Provider definition: load every dashboard JSON in /dashboards
 apiVersion: 1
 providers:
   - name: reconx
@@ -7,6 +7,5 @@ providers:
     type: file
     disableDeletion: false
     updateIntervalSeconds: 30
-    allowUiUpdates: true
     options:
       path: /etc/grafana/provisioning/dashboards
