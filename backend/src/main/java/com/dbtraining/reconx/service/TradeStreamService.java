@@ -47,8 +47,15 @@ public class TradeStreamService {
     }
 
     public void broadcast(TradeEvent event) {
-        JsonNode after = event.after();
-        if (after == null || after.isNull()) {
+        String afterRaw = event.after();
+        if (afterRaw == null || afterRaw.isBlank()) {
+            return;
+        }
+        JsonNode after;
+        try {
+            after = objectMapper.readTree(afterRaw);
+        } catch (JsonProcessingException ex) {
+            log.warn("Failed to parse trade stream after payload for ref={}: {}", event.tradeRef(), ex.getMessage());
             return;
         }
         Map<String, Object> payload = new LinkedHashMap<>();
