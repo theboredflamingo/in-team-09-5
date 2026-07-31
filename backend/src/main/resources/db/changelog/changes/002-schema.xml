@@ -1,17 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- ============================================================================
- TICKET-ADV006 — Core 8-entity ER model
- WHAT:    Counterparties, instruments, trades, settlements, recon_breaks,
-          recon_jobs, audit_log, users. trades is partitioned in 004; here it
-          is the non-partitioned base (H2 fallback) — see preconditions.
- HOW:     Standard <createTable> with constraints inline. Region/asset class/
-          status guarded by CHECK constraints.
- WHY:     Strong-typed schema = the database catches bad data before it
-          reaches the recon engine.
- OBSERVE: After boot: \dt on Postgres lists 8 tables (+ databasechangelog).
- ============================================================================
--->
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
