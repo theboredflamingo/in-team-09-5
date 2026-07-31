@@ -1,0 +1,56 @@
+# TICKET-ADV142 — fires when any message lands in trade-events-dlq.
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: reconx_kafka
+    folder: ReconX
+    interval: 1m
+    rules:
+      - uid: kafka_dlq_messages
+        title: KafkaDlqMessages
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: sum(kafka_consumer_records_consumed_total{topic="trade-events-dlq"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: A
+              type: threshold
+              refId: C
+        noDataState: NoData
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          summary: Messages in trade-events DLQ
+          description: At least one message has been DLQ'd in the last minute. Inspect /api/v1/admin/dlq.
+        labels:
+          severity: critical

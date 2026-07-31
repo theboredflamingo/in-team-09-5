@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Instrument.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">reconx</a> &gt; <a href="index.source.html" class="el_package">com.dbtraining.reconx.repository.entity</a> &gt; <span class="el_source">Instrument.java</span></div><h1>Instrument.java</h1><pre class="source lang-java linenums">package com.dbtraining.reconx.repository.entity;
+
+import jakarta.persistence.*;
+
+/**
+ * TICKET-ADV051 — JPA entity Instrument. JSONB metadata column wired via
+ * the Hypersistence Utils JsonBinaryType on Postgres; H2 stores it as a
+ * plain CLOB via the dialect translation (acceptable for dev).
+ */
+@Entity
+@Table(name = &quot;instruments&quot;)
+public class Instrument {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String symbol;
+
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @Column(name = &quot;asset_class&quot;, nullable = false, length = 20)
+    private String assetClass;
+
+    @Column(nullable = false, length = 3)
+    private String currency;
+
+    @Column(length = 12)
+    private String isin;
+
+<span class="fc" id="L33">    public Instrument() {}</span>
+
+<span class="nc" id="L35">    public Long getId()         { return id; }</span>
+<span class="nc" id="L36">    public String getSymbol()   { return symbol; }</span>
+<span class="nc" id="L37">    public String getName()     { return name; }</span>
+<span class="nc" id="L38">    public String getAssetClass(){ return assetClass; }</span>
+<span class="nc" id="L39">    public String getCurrency() { return currency; }</span>
+<span class="nc" id="L40">    public String getIsin()     { return isin; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,5 +1,7 @@
-node_modules/
-dist/
-.vite/
-*.log
-.git/
+node_modules
+dist
+.git
+*.md
+.DS_Store
+.env
+.env.*
